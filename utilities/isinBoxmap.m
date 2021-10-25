@@ -6,7 +6,7 @@ res=0;
 
 Sobst=size(Obstacles);
 GrandObstacle=[];
-for i=1:Sobst(2),
+for i=1:Sobst(2)
     GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
     GrandObstacle=[GrandObstacle; NaN NaN];
 end
@@ -19,7 +19,7 @@ if sum(GrandObstacle(:, 1) == x & GrandObstacle(:, 2) == y)==0
     y1=y+99999*sin(h);
 
     Sucess=0;
-    for kk=1:length(x1),
+    for kk=1:length(x1)
         [uu vv]= polyxpoly([x x1(kk)],[y y1(kk)],GrandObstacle(:,1),GrandObstacle(:,2));
         if isempty(uu)
             Sucess=0;
