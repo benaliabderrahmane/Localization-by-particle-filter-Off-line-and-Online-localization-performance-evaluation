@@ -1,4 +1,4 @@
-clear all
+function ParticleFilter(options)
 close all
 clc
 load('bat5_Obstacles_detect_redone140220.mat');
