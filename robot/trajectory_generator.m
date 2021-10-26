@@ -19,7 +19,7 @@ milieu =[27.5;1.15;0]; % point de milieu
 
 
 x1 =27.0; x2= 28.5;  % points fixes qui définit les abscisses x_max et x_min pour tout le rectangle créé dans la première partie de la map. 
-y1= 4.5 ; y2= 0;% points fixes qui définit les ordonnées y_max et y_min pour tous les rectangle crée dans la deuxième partie 
+y1= 0 ; y2= 1;% points fixes qui définit les ordonnées y_max et y_min pour tous les rectangle crée dans la deuxième partie 
 
 PP = debut; % l'initialisation du vecteur PP qui contiendra les coordonnées des points de passage 
 
