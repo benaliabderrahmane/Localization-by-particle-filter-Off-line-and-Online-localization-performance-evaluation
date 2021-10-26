@@ -1,4 +1,4 @@
-function ParticleFilter()
+function Data = ParticleFilter(Options)
 
     close all
     addpath('./affichage/');
@@ -27,15 +27,14 @@ function ParticleFilter()
 
 
 
-    Nmax=10;
-    N=Nmax;  
+    
+    N=Options.NParticles;  
     idx_seg=1;
     test_orientation=0;
     Robot.x=27.5;
     Robot.y=53;
     Robot.theta=-pi/2;
-
-    N_PP=3; % nombre de point de passage
+    
     test_mesure=0; % indice utilisee pour effectuer une mesure pour plusieurs iterations
     Portee=4; % portee des capteurs
     fin_trajectoire=0; % test pour verifier que le robot a termine sa trajectoire 
@@ -67,7 +66,7 @@ function ParticleFilter()
 
 %% generation des trajectoire : calcule les points de passages du robot et la vitesse correspond a  chaque segment de la trajectoire   
 
-    [PP,v] = trajectory_generator(N_PP,Obstacles,10);
+    [PP,v] = trajectory_generator(Options.NPP,Obstacles,10);
 %     PP=[27.5000000000000,27.2033898732974,27.4721696236095,27.7489383369825,27.6752137586831,27.4764283019429,28.0636474780856,27.4185388602376,28.4203991460876,27.0112195666672,27.5620342609094,27.5000000000000,25.8037922466977,23.5753521996448,20.4411248600483,17.0655134940915,15.0895883044919,11.8792429638910,10.3656653357397,5.86374377586899,4.02232296127434,1.85700612138352,0;53,49.7078469245938,47.9278001232452,38.1570425584487,34.6003872218339,30.9832740293548,23.6865946109579,19.1039582063765,12.6857209440967,12.1157472361984,4.37283996378318,1.15000000000000,0.476222049378097,1.88322196830137,2.60801742786320,2.01033699354604,1.69220006403437,1.59250030623232,0.852370684719879,1.81769272353208,1.06495249855317,2.18626599228018,1.15000000000000];
 %     v=[0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.900,0.900];
 
@@ -105,6 +104,7 @@ function ParticleFilter()
     
 %% boucle du filtrage:
     i=0;
+    
     while(fin_trajectoire == 0)
         temps_debut_iteration=tic;
         test_mesure=test_mesure+1;
@@ -153,11 +153,11 @@ function ParticleFilter()
                 rho_particles=Mesure_act(Portee,Particles.x(k),Particles.y(k),Particles.theta(k),theta,Obstacles,ObstaclesMobiles,0,1);
                 
                 %likelihood step
-                Poids(k)=likelihood(rho_rob,rho_particles);
+                Poids(k)=likelihood(Options.Likelihood,rho_rob,rho_particles);
             end
             Temps_mesure=toc(Debut_mesure); % temps pour chaque mesure 
 %% selection step
-            iNextGeneration = selection(Poids,N);
+            iNextGeneration = selection(Options.Selection,Poids,N);
 
 %% check for convergance
             % calcule de l'ecart-type des particules :
@@ -207,7 +207,7 @@ function ParticleFilter()
                     OldRobot.x = [];
                     OldRobot.y = [];
                 end
-                [Particles,OldParticles,OldRobot,vecteur_Tconvergence,vecteur_It_convergence,FlagRedistribution,Indice_,N] = resampling(Obstacles,Robot,OldRobot,pose_estime,Particles,OldParticles,Nmax,T_Debut,i,FlagRedistribution,vecteur_Tconvergence,vecteur_It_convergence,Indice_,N);
+                [Particles,OldParticles,OldRobot,vecteur_Tconvergence,vecteur_It_convergence,FlagRedistribution,Indice_,N] = resampling(Options.Distribution,Obstacles,Robot,OldRobot,pose_estime,Particles,OldParticles,Options.NParticles,T_Debut,i,FlagRedistribution,vecteur_Tconvergence,vecteur_It_convergence,Indice_,N);
             end
 
             if  Indice_ ~= 0 
@@ -222,7 +222,7 @@ function ParticleFilter()
         drawnow;
         % si on arrive au dernier segment on finit le controle  
         
-        if (idx_seg== (N_PP+2))
+        if (idx_seg== (Options.NPP+2))
             fin_trajectoire= 1 ;
         end
         temps_iteration=toc(temps_debut_iteration); % temps pour chaque iteration 
@@ -234,9 +234,21 @@ function ParticleFilter()
 
         vecteur_Robot=[vecteur_Robot,[Robot.x;Robot.y;Robot.theta]];
         vecteur_particles=[vecteur_particles,[inf;inf;inf],[Particles.x;Particles.y;Particles.theta]];
-        save('N500C16F3.mat','vecteur_erreur','vecteur_incertitude_x','vecteur_incertitude_y','vecteur_incertitude_theta','N_Particles','t_iteration','vecteur_Robot','vecteur_estimation','iteration','T_convergence','iteration_convergence','vecteur_Tconvergence','vecteur_It_convergence')
-
     end
     T_fin=toc(T_Debut); % temps du programme 
-
-    save('data/N500C16F3.mat','T_convergence','T_fin','vecteur_particles','-append');
+    Data.vecteur_erreur=vecteur_erreur;
+    Data.vecteur_incertitude_x = vecteur_incertitude_x;
+    Data.vecteur_incertitude_y = vecteur_incertitude_y;
+    Data.vecteur_incertitude_theta = vecteur_incertitude_theta;
+    Data.N_Particles = N_Particles;
+    Data.t_iteration = t_iteration;
+    Data.vecteur_Robot = vecteur_Robot;
+    Data.vecteur_estimation = vecteur_estimation;
+    Data.iteration = iteration;
+    Data.T_convergence = T_convergence;
+    Data.iteration_convergence = iteration_convergence;
+    Data.vecteur_Tconvergence = vecteur_Tconvergence;
+    Data.vecteur_It_convergence = vecteur_It_convergence;
+    Data.T_convergence = T_convergence;
+    Data.T_fin = T_fin;
+    Data.vecteur_particles = vecteur_particles;
