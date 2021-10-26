@@ -36,29 +36,15 @@ for i=1:length(LikelihoodA)
     end
 
 end
-
-            
         
-
-
-% %% Switch over cases of (Likelihood, Selection, Distribution) using same (NParticles, PtDepart, NCapteur) : 
-% StudyCase = [Likelihood(1),Selection(1)];
-% switch StudyCase
-%     case [Likelihood(1),Selection(1)]
-%         disp(sprintf('case : %s, %s',StudyCase(1),StudyCase(2)))
-%     case [Likelihood(1),Selection(2)]
-%         disp('2')
-%     case [Likelihood(2),Selection(1)]
-%         disp('3')
-% end
-
-
-
 
 
 %% save
 function data = save()
     %data = ..
+    %this save is in boucle du filtrage (while(fin_trajectoire == 0))
+    save('data/N500C16F3.mat','vecteur_erreur','vecteur_incertitude_x','vecteur_incertitude_y','vecteur_incertitude_theta','N_Particles','t_iteration','vecteur_Robot','vecteur_estimation','iteration','T_convergence','iteration_convergence','vecteur_Tconvergence','vecteur_It_convergence');
+    %this save is out of boucle du filtrage
     save('data/N500C16F3.mat','T_convergence','T_fin','vecteur_particles','-append');
 end
 
