@@ -1,23 +1,25 @@
-%xmin,xmax:
-%ymin,ymax:
-%N: number of particles(points)
 function [Particles]=Particles_generator(xmin,xmax,ymin,ymax,theta_min,theta_max,N,Obstacles)
-Particles=[];
-i=1;
-while size(Particles,2)<N
-P(1,1)=(xmax-xmin)*rand+xmin; %c'est la coordonnee x de la particule candidate
-P(2,1)=(ymax-ymin)*rand+ymin;%c'est la coordonnee y de la particule candidate
-P(3,1)=(theta_max-theta_min)*rand+theta_min;%c'est l'orientation de la particule candidate
-test=isinBoxmap(P(1,1),P(2,1),Obstacles);
-if test==1
-    Particles=[Particles,P];
-    i=i+1;
-end
-%figure(10)
-
-P1=[[xmin;ymax],[xmax;ymax],[xmax;ymin],[xmin;ymin],[xmin;ymax]];
-%plot(P1(1,:),P1(2,:))
-end
-
-
-
+clc 
+Particles=zeros(3,N); %array (3xN) 
+sprintf('initial Particles')
+disp(Particles)
+for i=1:N
+    while Particles(1,i)==0
+        P(1,i)=(xmax-xmin)*rand+xmin; %Particle.x 
+        P(2,i)=(ymax-ymin)*rand+ymin; %Particle.y
+        P(3,i)=(theta_max-theta_min)*rand+theta_min; %Particle.theta
+        test=isinBoxmap(P(1,i),P(2,i),Obstacles);
+        if test==1
+            Particles(1,i)=P(1,i);
+            Particles(2,i)=P(2,i);
+            Particles(3,i)=P(3,i);
+            i=i+1;
+        end
+        if i==N+1
+            break
+        end
+    end
+end 
+% P1=[[xmin;ymax],[xmax;ymax],[xmax;ymin],[xmin;ymin],[xmin;ymax]];
+disp('------------------------------------------------------------------------------------------------------------')
+disp(Particles)
