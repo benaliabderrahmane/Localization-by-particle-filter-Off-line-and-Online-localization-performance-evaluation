@@ -1,4 +1,4 @@
-function [particles,vecteurTconvergence,vecteurItConvergence,flag,Indice_,N] = resampling(Robot,PoseEstime,Nmax,TimeDebut,iteration,flag,vecteurTconvergence,vecteurItConvergence)
+function [particles,OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergence,flag,Indice_,N] = resampling(Obstacles,Robot,OldRobot,PoseEstime,particles,OldParticles,Nmax,TimeDebut,iteration,flag,vecteurTconvergence,vecteurItConvergence,Indice_,N)
 %RESAMPLING is the redistribution function 
 %   INPUT:
 %       
@@ -14,17 +14,17 @@ function [particles,vecteurTconvergence,vecteurItConvergence,flag,Indice_,N] = r
         vecteurTconvergence=[vecteurTconvergence,T_convergence];
         iteration_convergence = iteration; 
         vecteurItConvergence=[vecteurItConvergence,iteration_convergence];
-        Particles_old.x=PoseEstime.x;
-        Particles_old.y=PoseEstime.y;
-        robot_old.x=Robot.x;
-        robot_old.y=Robot.y;
+        OldParticles.x=PoseEstime.x;
+        OldParticles.y=PoseEstime.y;
+        OldRobot.x=Robot.x;
+        OldRobot.y=Robot.y;
         flag=1;
     else
         % calcule de la distance parcourue pour les particules :
-        Distance_Particles=norm([PoseEstime.x,PoseEstime.y]-[Particles_old.x,Particles_old.y]);
+        Distance_Particles=norm([PoseEstime.x,PoseEstime.y]-[OldParticles.x,OldParticles.y]);
 
         % calcule de la distance parcourue pour le robot :
-        Distance_robot=norm([Robot.x,Robot.y]-[robot_old.x,robot_old.y]);
+        Distance_robot=norm([Robot.x,Robot.y]-[OldRobot.x,OldRobot.y]);
 
         % s'il y a une difference de  2.5 m, on effectue la redistribution : 
         if(abs(Distance_Particles-Distance_robot)>2.5)
