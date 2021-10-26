@@ -10,7 +10,7 @@ AllOptions.Selection=["Selection1","Selection2"];
 AllOptions.Distribution=["Distribution1","Distribution2"];
 AllOptions.NParticles=[10];
 AllOptions.StartPoint=[0;0;0];
-AllOptions.SensorsType="SensorsType";
+AllOptions.SensorsType="Lidar";
 AllOptions.NPp=[5];
 
 

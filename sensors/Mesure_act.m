@@ -16,3 +16,5 @@ function [rho,ximp,yimp,GrandObstacle]=Mesure_act(Choice,Portee,xROB,yROB,thetaR
             rho=min(rho,Portee);
         otherwise
             error("sensor type is not supported!! add it in sensors(resampling)/Mesure_act.m")
+    end
+end
