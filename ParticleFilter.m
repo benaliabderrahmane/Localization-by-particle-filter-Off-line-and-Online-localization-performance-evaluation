@@ -64,7 +64,7 @@ function Data = ParticleFilter(Options)
 
 
 
-%% generation des trajectoire : calcule les points de passages du robot et la vitesse correspond a� chaque segment de la trajectoire   
+%% generation des trajectoire : calcule les points de passages du robot et la vitesse correspond a  chaque segment de la trajectoire   
 
     [PP,v] = trajectory_generator(Options.NPP,Obstacles,10);
 %     PP=[27.5000000000000,27.2033898732974,27.4721696236095,27.7489383369825,27.6752137586831,27.4764283019429,28.0636474780856,27.4185388602376,28.4203991460876,27.0112195666672,27.5620342609094,27.5000000000000,25.8037922466977,23.5753521996448,20.4411248600483,17.0655134940915,15.0895883044919,11.8792429638910,10.3656653357397,5.86374377586899,4.02232296127434,1.85700612138352,0;53,49.7078469245938,47.9278001232452,38.1570425584487,34.6003872218339,30.9832740293548,23.6865946109579,19.1039582063765,12.6857209440967,12.1157472361984,4.37283996378318,1.15000000000000,0.476222049378097,1.88322196830137,2.60801742786320,2.01033699354604,1.69220006403437,1.59250030623232,0.852370684719879,1.81769272353208,1.06495249855317,2.18626599228018,1.15000000000000];
@@ -165,7 +165,7 @@ function Data = ParticleFilter(Options)
             Et_y=sqrt(var(Particles.y(iNextGeneration)));
             Et_theta=sqrt(var(Particles.theta(iNextGeneration)));
 
-            % si l'ecart-type soit inferieur à certin seulle <=> les particules
+            % si l'ecart-type soit inferieur Ã  certin seulle <=> les particules
             % converge :
             if(Et_x<7 && Et_y<7 && Et_theta<2)
                 % la psition estimee du robot = la moyenne des particules :
@@ -252,4 +252,8 @@ function Data = ParticleFilter(Options)
     Data.T_convergence = T_convergence;
     Data.T_fin = T_fin;
     Data.vecteur_particles = vecteur_particles;
-end
+
+  end
+
+
+
