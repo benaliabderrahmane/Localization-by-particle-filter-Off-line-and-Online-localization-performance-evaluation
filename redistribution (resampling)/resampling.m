@@ -1,4 +1,4 @@
-function [particles,OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergence,flag,Indice_,N] = resampling(Obstacles,Robot,OldRobot,PoseEstime,particles,OldParticles,Nmax,TimeDebut,iteration,flag,vecteurTconvergence,vecteurItConvergence,Indice_,N)
+function [Particles,OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergence,flag,Indice_,N] = resampling(Obstacles,Robot,OldRobot,PoseEstime,Particles,OldParticles,Nmax,TimeDebut,iteration,flag,vecteurTconvergence,vecteurItConvergence,Indice_,N)
 %RESAMPLING is the redistribution function 
 %   INPUT:
 %       
