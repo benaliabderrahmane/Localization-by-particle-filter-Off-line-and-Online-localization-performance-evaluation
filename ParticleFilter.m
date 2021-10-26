@@ -146,11 +146,11 @@ function Data = ParticleFilter(Options)
 
         if(test_mesure==3) 
             % mesures du robot :
-            rho_rob=Mesure_act(Portee,Robot.x,Robot.y,Robot.theta,theta,Obstacles,ObstaclesMobiles,1,1);
+            rho_rob=Mesure_act(Options.SensorsType,Portee,Robot.x,Robot.y,Robot.theta,theta,Obstacles,ObstaclesMobiles,1,1);
             rho_particles=[];
             for k=1:N
                 % mesures des particules :
-                rho_particles=Mesure_act(Portee,Particles.x(k),Particles.y(k),Particles.theta(k),theta,Obstacles,ObstaclesMobiles,0,1);
+                rho_particles=Mesure_act(Options.SensorsType,Portee,Particles.x(k),Particles.y(k),Particles.theta(k),theta,Obstacles,ObstaclesMobiles,0,1);
                 
                 %likelihood step
                 Poids(k)=likelihood(Options.Likelihood,rho_rob,rho_particles);
