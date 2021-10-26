@@ -1,7 +1,9 @@
-function [outputArg1,outputArg2] = selection(inputArg1,inputArg2)
-%SELECTION Summary of this function goes here
-%   Detailed explanation goes here
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
+function [iNextGeneration] = selection(weights,N)
+%SELECTION of next generation particles
+%   (used un main function ParticleFilter)
+    CDF = cumsum(weights)/sum(weights); % vecteur des poids cumules et normalise
+    iSelect  = rand(N,1);
+    % renvoie un vecteur qui ne contient que les bonnes particules et elimine le mauvaises et met au lieu d'eux l'indice des bonnes
+    iNextGeneration = interp1(CDF,1:N,iSelect,'nearest','extrap');
 end
 

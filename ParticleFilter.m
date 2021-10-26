@@ -1,6 +1,4 @@
 function ParticleFilter(options)
-    close all
-
 
     addpath('./affichage/');
     addpath('./data/');
@@ -11,10 +9,13 @@ function ParticleFilter(options)
     addpath('./sensors/');
     addpath('./utilities/');
     
+    %load map data
     load('bat5_Obstacles_detect_redone140220.mat');
-
+    
+    %start tracking time
     T_Debut=tic;
 
+    
     global N ;% Nombre de particules
     global idx_seg ;% indice du segment courant
     global test_orientation; % pour tester si on doit faire une translation(==0) ou rotation(==1)
@@ -23,7 +24,7 @@ function ParticleFilter(options)
     global pose_estime;
 
 
-    %%    initialisation des parametres 
+    %%    initialization of parameters
     Nmax=500;
     N=Nmax;  
     idx_seg=1;
@@ -55,7 +56,7 @@ function ParticleFilter(options)
     T_convergence = 0;
 
     indice_controle=0; % indice pour effectuer ou non le controle
-    Indice_redistribution = 0 ; 
+    FlagRedistribution = 0 ; 
     Indice_ = 1 ;
 
 
@@ -112,7 +113,7 @@ function ParticleFilter(options)
         if (indice_controle==1)
 
             % controle du robot :
-            Robot=controle(Robot,PP,v,0)
+            Robot = controle(Robot,PP,v,0);
             % affichage du robot :
             set(robPoints,'XData',Robot.x);
             set(robPoints,'YData',Robot.y);
@@ -143,30 +144,18 @@ function ParticleFilter(options)
         if(test_mesure==3) 
             % mesures du robot :
             rho_rob=Mesure_act(Portee,Robot.x,Robot.y,Robot.theta,theta,Obstacles,ObstaclesMobiles,1,1);
-
-
             rho_particles=[];
             for k=1:N
                 % mesures des particules :
                 rho_particles=Mesure_act(Portee,Particles.x(k),Particles.y(k),Particles.theta(k),theta,Obstacles,ObstaclesMobiles,0,1);
-
-
-
-                % Ponderation et calcul des nouveaux poids :
-                Ecart=rho_rob-rho_particles;
-                sigma=sqrt(var(Ecart));
-                Moyenne=mean(Ecart);
-                E=(Ecart-Moyenne)/sigma;
-                Poids(k)=1/(sqrt(2*pi)*sigma)*exp(-0.5*E'*E);
+                
+                %likelihood step
+                Poids(k)=likelihood(rho_rob,rho_particles)
             end
             Temps_mesure=toc(Debut_mesure); % temps pour chaque mesure 
 
-            % etape de selection :
-            CDF = cumsum(Poids)/sum(Poids); % vecteur des poids cumules et normalise
-            iSelect  = rand(N,1); 
-            % renvoie un vecteur qui ne contient que les bonnes particules et elimine le mauvaises et met au lieu d'eux l'indice des bonnes
-            iNextGeneration = interp1(CDF,1:N,iSelect,'nearest','extrap'); 
-
+            % selection step
+            iNextGeneration = selection(Poids,N);
 
             % calcule de l'ecart-type des particules :
             Et_x=sqrt(var(Particles.x(iNextGeneration)));
@@ -207,46 +196,14 @@ function ParticleFilter(options)
 
                 % si les particules convergent vers une position autre que la position du robot :
                 % On redistribue les particules sur toute la carte 
-
-                if Indice_redistribution==0 %si on est dans la premiere iteration de convergence
-                    T_convergence=toc(T_Debut);
-                    vecteur_Tconvergence=[vecteur_Tconvergence,T_convergence];
-                    iteration_convergence = i; 
-                    vecteur_It_convergence=[vecteur_It_convergence,iteration_convergence];
-                    Particles_old.x=pose_estime.x;
-                    Particles_old.y=pose_estime.y;
-                    robot_old.x=Robot.x;
-                    robot_old.y=Robot.y;
-                    Indice_redistribution=1;
-
-                else
-                    % calcule de la distance parcourue pour les particules :
-                    Distance_Particles=norm([pose_estime.x,pose_estime.y]-[Particles_old.x,Particles_old.y]);
-
-                    % calcule de la distance parcourue pour le robot :
-                    Distance_robot=norm([Robot.x,Robot.y]-[robot_old.x,robot_old.y]);
-
-                    % s'il y a une difference de  2.5 m, on effectue la redistribution : 
-                    if(abs(Distance_Particles-Distance_robot)>2.5)
-                        N=Nmax;
-                        particles1=Particles_generator(26.5747,29.02,-0.269984,55,-pi,pi,N/2,Obstacles);
-                        particles2=Particles_generator(-5,26.5747,-0.269984,11.53,-pi,pi,N/2,Obstacles);
-                        particles=[particles1,particles2];
-                        Particles.x=particles(1,:);
-                        Particles.y=particles(2,:);
-                        Particles.theta=particles(3,:);
-                        Indice_ = 0;
-                        Indice_redistribution=0;
-                    end  
-                end
+                [Particles,vecteur_Tconvergence,vecteur_It_convergence,FlagRedistribution,Indice_,N] = resampling(Robot,pose_estime,Nmax,T_Debut,i,FlagRedistribution,vecteur_Tconvergence,vecteur_It_convergence)
             end
 
-            if  Indice_ ~=0 
+            if  Indice_ ~= 0 
                 Particles=testInext(iNextGeneration,Particles,Obstacles);
             else 
-                Indice_ =1;
+                Indice_ = 1;
             end
-
             test_mesure=0;
         end
 
