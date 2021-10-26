@@ -234,9 +234,8 @@ function ParticleFilter()
 
         vecteur_Robot=[vecteur_Robot,[Robot.x;Robot.y;Robot.theta]];
         vecteur_particles=[vecteur_particles,[inf;inf;inf],[Particles.x;Particles.y;Particles.theta]];
-        save('N500C16F3.mat','vecteur_erreur','vecteur_incertitude_x','vecteur_incertitude_y','vecteur_incertitude_theta','N_Particles','t_iteration','vecteur_Robot','vecteur_estimation','iteration','T_convergence','iteration_convergence','vecteur_Tconvergence','vecteur_It_convergence')
 
     end
     T_fin=toc(T_Debut); % temps du programme 
 
-    save('data/N500C16F3.mat','T_convergence','T_fin','vecteur_particles','-append');
+
