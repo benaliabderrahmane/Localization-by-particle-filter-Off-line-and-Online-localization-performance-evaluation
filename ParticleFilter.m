@@ -252,3 +252,4 @@ function Data = ParticleFilter(Options)
     Data.T_convergence = T_convergence;
     Data.T_fin = T_fin;
     Data.vecteur_particles = vecteur_particles;
+end
