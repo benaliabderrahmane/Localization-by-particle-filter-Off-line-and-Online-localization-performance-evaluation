@@ -90,7 +90,9 @@ function Data = ParticleFilter(Options)
 
 
     % la definition du nombre de capteurs et de leurs angles :
-    theta=linspace(-pi,pi,16);
+    theta=linspace(-pi,pi,16);  
+    %nombre de capteur
+    NS = length(theta);
     theta(end)=[];
 
  %% initialisation d'affichage : 
@@ -147,7 +149,7 @@ function Data = ParticleFilter(Options)
         if(test_mesure==3) 
             % mesures du robot :
             rho_rob=Mesure_act(Options.SensorsType,Portee,Robot.x,Robot.y,Robot.theta,theta,Obstacles,ObstaclesMobiles,1,1);
-            rho_particles=[];
+            rho_particles=zeros(NS,1);
             for k=1:N
                 % mesures des particules :
                 rho_particles=Mesure_act(Options.SensorsType,Portee,Particles.x(k),Particles.y(k),Particles.theta(k),theta,Obstacles,ObstaclesMobiles,0,1);

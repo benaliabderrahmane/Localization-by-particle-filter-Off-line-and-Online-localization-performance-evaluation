@@ -2,7 +2,7 @@ function [rho,ximp,yimp,GrandObstacle]=Mesure_act(Choice,Portee,xROB,yROB,thetaR
 
     Choice = upper(Choice);
     switch Choice 
-        case "LIDAR"
+        case "LASER"
             theta=round(theta*(1024/(2*pi)))*(2*pi/1024);
             ObstaclesComplet=[Obstacles ObstaclesMobiles];
             if isempty(ObstaclesComplet)
