@@ -5,10 +5,11 @@ res=0;
 
 
 Sobst=size(Obstacles);
-GrandObstacle=[];
+GrandObstacle=zeros(Sobst(2)*3,2);
 for i=1:Sobst(2)
-    GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
-    GrandObstacle=[GrandObstacle; NaN NaN];
+    k = (i-1)*3;
+    GrandObstacle(k+1:k+2,:)=[Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
+    GrandObstacle(k+3,:)=[NaN NaN];
 end
 
 if sum(GrandObstacle(:, 1) == x & GrandObstacle(:, 2) == y)==0

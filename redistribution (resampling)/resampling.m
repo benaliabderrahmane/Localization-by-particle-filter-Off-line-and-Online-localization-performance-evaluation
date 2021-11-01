@@ -10,7 +10,7 @@ function [Particles,OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergen
 %       N: number of particles (in case we change the number of particles when we redistribute)
     Choice = upper(Choice);
     switch Choice 
-        case "Distribution1"
+        case "DISTRIBUTION1"
             if flag==0 %si on est dans la premiere iteration de convergence
                 T_convergence=toc(TimeDebut);
                 vecteurTconvergence=[vecteurTconvergence,T_convergence];

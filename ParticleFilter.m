@@ -236,7 +236,7 @@ function Data = ParticleFilter(Options)
         vecteur_particles=[vecteur_particles,[inf;inf;inf],[Particles.x;Particles.y;Particles.theta]];
     end
     T_fin=toc(T_Debut); % temps du programme 
-    Data.vecteur_erreur=vecteur_erreur;
+%     Data.vecteur_erreur=vecteur_erreur; 
     Data.vecteur_incertitude_x = vecteur_incertitude_x;
     Data.vecteur_incertitude_y = vecteur_incertitude_y;
     Data.vecteur_incertitude_theta = vecteur_incertitude_theta;
@@ -247,9 +247,7 @@ function Data = ParticleFilter(Options)
     Data.iteration = iteration;
     Data.T_convergence = T_convergence;
     Data.iteration_convergence = iteration_convergence;
-    Data.vecteur_Tconvergence = vecteur_Tconvergence;
-    Data.vecteur_It_convergence = vecteur_It_convergence;
-    Data.T_convergence = T_convergence;
+
     Data.T_fin = T_fin;
     Data.vecteur_particles = vecteur_particles;
 
