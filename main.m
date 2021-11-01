@@ -12,14 +12,14 @@ AllOptions.NParticles=[10];
 AllOptions.StartPoint=[0;0;0];
 AllOptions.SensorsType="Lidar";
 AllOptions.NPp=[5];
-
+% add speed 
 
 
 size = max([length(AllOptions.Likelihood),length(AllOptions.Selection),length(AllOptions.Distribution)]);
 
-for i=1:length(AllOptions.Likelihood)
-    for j=1:length(AllOptions.Selection)
-        for k=1:length(AllOptions.Distribution)
+for i=1:1%length(AllOptions.Likelihood)
+    for j=1:1%length(AllOptions.Selection)
+        for k=1:1%length(AllOptions.Distribution)
             % for each StudyCase
             sprintf('Particle Filter using %s %s %s %s %s %s',AllOptions.Likelihood(i),AllOptions.Selection(j),AllOptions.Distribution(k),AllOptions.NParticles,AllOptions.StartPoint,AllOptions.SensorsType,AllOptions.NPp);
             Options.Likelihood = AllOptions.Likelihood(i);
