@@ -8,10 +8,10 @@ clc
 AllOptions.Likelihood=["likelihood1","likelihood2"];
 AllOptions.Selection=["Selection1","Selection2"];
 AllOptions.Distribution=["Distribution1","Distribution2"];
-AllOptions.NParticles=[10];
+AllOptions.NParticles=10;
 AllOptions.StartPoint=[0;0;0];
 AllOptions.SensorsType="LASER";
-AllOptions.NPp=[5];
+AllOptions.NPp=5;
 % add speed 
 
 
