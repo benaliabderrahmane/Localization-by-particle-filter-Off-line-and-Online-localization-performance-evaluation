@@ -1,4 +1,4 @@
-function [PP, v ] = trajectory_generator(N,Obstacles,Fig)
+function [PP, v ] = trajectory_generator(N,Obstacles,Fig,Start,End)
 % la fonction trajectory_generator va générer le trajectoire du robot ent
 % passant par des de points de passages.
 % Nous divisons la carte en deux grands rectangles et dans chaque rectangle,
@@ -13,43 +13,58 @@ function [PP, v ] = trajectory_generator(N,Obstacles,Fig)
 
 
 
-debut=[27.5;53;0]; % point de dépat du robot 
-fin=[0;1.15;0]; % point de la fin 
-milieu =[27.5;1.15;0]; % point de milieu 
-
-
 x1 =27.0; x2= 28.5;  % points fixes qui définit les abscisses x_max et x_min pour tout le rectangle créé dans la première partie de la map. 
 y1= 0 ; y2= 1;% points fixes qui définit les ordonnées y_max et y_min pour tous les rectangle crée dans la deuxième partie 
 
-PP = zeros(3,N+3);
-PP(:,1) = debut; % l'initialisation du vecteur PP qui contiendra les coordonnées des points de passage 
-v = zeros(N+3,1);
+PP = zeros(3,N+2);
+PP(:,1) = Start;
+PP(:,end) = End;
 
-N1= floor(N/2); % N1: nombre de point de passage pour la première partie de la map (prend la valeur la plus proche inférieure à N/2) 
-dy= (53 -2.30002)/N1; % dy : la langeur des regtangles quand va cree pour la premier partie 
-
-N2= ceil(N/2); % N2 nombre de point de passage pour la première partie (prend la valeur la plus proche superieur à N/2)
-dx= (26.5747-0)/N2; % dx : la langeur des regtangles quand va cree pour la deuxième partie
-
-k=1; % indice des element du vecteur vitesse v
+v = zeros(N+2,1);
 
 % création d'un vecteur GrandObstacle qui contiendra les coordonnées des segments d'obstacles (la map) 
 Sobst=size(Obstacles);
 GrandObstacle=zeros(Sobst(2)*3,2);
+
 for i=1:Sobst(2)
     kk = (i-1)*3;
     GrandObstacle(kk+1:kk+2,:)=[Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
     GrandObstacle(kk+3,:)=[NaN NaN];
 end
 
+k=1; % indice des element du vecteur vitesse v
+
+if Start(1)>=26 && End(1)>= 26
+    %trajectory in first part of the map
+    section = 1;
+elseif Start(2)<5.5 && End(2)< 5.5
+    %trajectory in second part of the map
+    section = 2; 
+else
+    %trajectory in both part of the map
+    section = 12;
+end
+
+if section == 1
+    %trajectory in first part of the map
+    
+    
+elseif section == 2
+    %trajectory in second part of the map
+    
+    
+else 
+    %trajectory in both part of the map
+    
+    
 
 
 
-for i= 0:N1-1
+for i= 0:N
     test_intersection = 1; % flag pour indiquer l'intersection de segment crée avec la map :
                           % 1 intersction 
                           % 0 pas d'intersction 
-    % x_min, x_max, y_min et y_max sont les cordonnées des sommets du réctangle crée 
+
     x_min = x1;
     x_max = x2;
     y_min = 53-(i+1)*dy;
@@ -121,6 +136,7 @@ PP(:,N2+N1+3)=P; % ajout du pint de fin
 % affichage 
 figure(Fig)
 plot(PP(1,:),PP(2,:),'*k')
+hold on
 plot(PP(1,:),PP(2,:),'k')
 
 end
