@@ -1,4 +1,4 @@
-function [PP, v ] = trajectoryGenerator(N,Obstacles,Start,End,Fig)
+function PP = trajectoryGenerator(N,Obstacles,Start,End,Fig,flag)
 
     if(~isinBoxmap(Start(1),Start(2),Obstacles))
         error("start point isn't inside the box map")
@@ -68,18 +68,18 @@ function [PP, v ] = trajectoryGenerator(N,Obstacles,Start,End,Fig)
             Xmin = max(x(x<27));
             Xmax = min(x(x>27));
             
-            figure(Fig)
-            plot([Xmin,Xmax],[Ymax,Ymax])
-            plot([Xmax,Xmax],[Ymax,Ymin])
-            plot([Xmax,Xmin],[Ymin,Ymin])
-            plot([Xmin,Xmin],[Ymin,Ymax])
+%             figure(Fig)
+%             plot([Xmin,Xmax],[Ymax,Ymax])
+%             plot([Xmax,Xmax],[Ymax,Ymin])
+%             plot([Xmax,Xmin],[Ymin,Ymin])
+%             plot([Xmin,Xmin],[Ymin,Ymax])
             
             while(1)
                 P=Particles_generator(Xmin,Xmax,Ymin,Ymax,-pi/2,pi/2, 1,Obstacles); % create a point in the rectangle 
                 x= polyxpoly([PP(1,i) P(1)],[PP(2,i), P(2)],ObstaclesSegments(:,1),ObstaclesSegments(:,2)); % check for intersection
                 if(isempty(x))
                 PP(:,i+1)=P;   %add this point to PP    
-                plot(P(1),P(2),'*r')
+
                 break
                 end
             end     
@@ -124,28 +124,28 @@ function [PP, v ] = trajectoryGenerator(N,Obstacles,Start,End,Fig)
                 temp = Ymin;
             end
             
-            figure(Fig)
-            plot([Xmin,Xmax],[Ymax,Ymax])
-            plot([Xmax,Xmax],[Ymax,Ymin])
-            plot([Xmax,Xmin],[Ymin,Ymin])
-            plot([Xmin,Xmin],[Ymin,Ymax])
+%             figure(Fig)
+%             plot([Xmin,Xmax],[Ymax,Ymax])
+%             plot([Xmax,Xmax],[Ymax,Ymin])
+%             plot([Xmax,Xmin],[Ymin,Ymin])
+%             plot([Xmin,Xmin],[Ymin,Ymax])
             
             while(1)
                 P=Particles_generator(Xmin,Xmax,Ymin,Ymax,-pi/2,pi/2, 1,Obstacles); % create a point in the rectangle 
                 x= polyxpoly([PP(1,i+N1) P(1)],[PP(2,i+N1), P(2)],ObstaclesSegments(:,1),ObstaclesSegments(:,2)); % check for intersection
                 if(isempty(x))
                 PP(:,i+N1+1)=P;  %add this point to PP  
-                plot(P(1),P(2),'*b')
                 break
                 end
             end     
         end
     end
-figure(Fig)
-plot(PP(1,:),PP(2,:),'*k')
-hold on
-plot(PP(1,:),PP(2,:),'k')     
-     v= 0.6;       
+    if flag
+        figure(Fig)
+        plot(PP(1,:),PP(2,:),'*k')
+        hold on
+        plot(PP(1,:),PP(2,:),'k')
+    end
 end
           
   
