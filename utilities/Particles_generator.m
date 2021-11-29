@@ -10,6 +10,8 @@ function [Particles]=Particles_generator(xmin,xmax,ymin,ymax,theta_min,theta_max
         if test==1
             Particles(:,i)=P;
             i=i+1;
+        else
+            
         end
     end
     %figure(10)
