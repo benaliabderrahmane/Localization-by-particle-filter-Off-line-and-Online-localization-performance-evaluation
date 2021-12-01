@@ -1,7 +1,7 @@
 figure(10)
 clc
 close all
-load('C:\Users\benal\Dropbox\PC\Documents\projet master\Bibliographie\Code\-Localization-by-particle-filter--Off-line-and-Online-localization-performance-evaluation\data\bat5_Obstacles_detect_redone140220.mat')
+%load('C:\Users\benal\Dropbox\PC\Documents\projet master\Bibliographie\Code\-Localization-by-particle-filter--Off-line-and-Online-localization-performance-evaluation\data\bat5_Obstacles_detect_redone140220.mat')
 plot_Environement(Obstacles,10);%affichage de l'environnement
 n = length(Data.vecteur_Robot);
 Robot = Data.vecteur_Robot(:,1);

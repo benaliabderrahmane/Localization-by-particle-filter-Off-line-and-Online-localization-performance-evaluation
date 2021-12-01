@@ -8,12 +8,11 @@ clc
 AllOptions.Likelihood=["likelihood1"];
 AllOptions.Selection=["Selection1","Selection2"];
 AllOptions.Distribution=["distance","standard Deviation"];
-AllOptions.SensorsType=["laser","laser front","ladar"]; %Laser 360° laser1 only from -30 to 210 (240 overall) LAdar for US only.
+AllOptions.SensorsType=["laser","laser front","US"]; %Laser 360° laser1 only from -30 to 210 (240 overall) LAdar for US only.
 AllOptions.NParticles=[5];
 AllOptions.StartPoint=[27.5;50;-pi/2];
 AllOptions.EndPoint=[27;5;0];
 AllOptions.NPp=5;
-
 AllOptions.MaxSpeed=0.6;
 AllOptions.NR = 16; %number of rays
 AllOptions.plot = 0; %bool 1 plot 0 do not plot
