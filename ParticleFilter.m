@@ -125,6 +125,9 @@ indice_controle=1;
 
             % controle des particules :
             for j=1:N
+                if (idx_seg == (Options.NPP+2))
+                    break
+                end
                 P.x=Particles.x(j);
                 P.y=Particles.y(j);
                 P.theta=Particles.theta(j);
@@ -225,10 +228,11 @@ indice_controle=1;
 
 %         indice_controle=1;
         drawnow;
-        % si on arrive au dernier segment on finit le controle  
         
-        if (idx_seg== (Options.NPP+1))
-            fin_trajectoire= 1 ;
+        % si on arrive au dernier segment on finit le controle  
+        if (idx_seg == (Options.NPP+2))
+            fin_trajectoire = 1;
+            indice_controle = 0;
         end
         temps_iteration=toc(temps_debut_iteration); % temps pour chaque iteration 
 
