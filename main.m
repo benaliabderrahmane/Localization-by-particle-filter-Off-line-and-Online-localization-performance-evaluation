@@ -5,15 +5,14 @@ clc
 
 %% loop over all combinations of (Likelihood, Selection, Distribution) using same (NParticles, PtDepart, NCapteur) : 
 
-AllOptions.Likelihood=["likelihood1","likelihood2"];
+AllOptions.Likelihood=["likelihood1"];
 AllOptions.Selection=["Selection1","Selection2"];
-AllOptions.Distribution=["Distribution1","Distribution2"];
-AllOptions.NParticles= [2] %[50 100 200 300 400 500 600 700];
+AllOptions.Distribution=["distance","standard Deviation"];
+AllOptions.SensorsType=["laser","laser front","US"]; %Laser 360° laser1 only from -30 to 210 (240 overall) LAdar for US only.
+AllOptions.NParticles=[5];
 AllOptions.StartPoint=[27.5;50;-pi/2];
-AllOptions.EndPoint=[0;1;0];
-%AllOptions.SensorsType=["LASER","LASER1","LADAR"]; %LASer 360° laser1 only from -30 to 210 (240 overall) LAdar for US only.
-AllOptions.SensorsType=["US"];
-AllOptions.NPp= 4 ; %20
+AllOptions.EndPoint=[27;5;0];
+AllOptions.NPp=5;
 AllOptions.MaxSpeed=0.6;
 AllOptions.NR = 16; %number of rays
 AllOptions.plot = 0; %bool 1 plot 0 do not plot
@@ -23,7 +22,7 @@ size = max([length(AllOptions.Likelihood),length(AllOptions.Selection),length(Al
 
 for i=1:1%length(AllOptions.Likelihood)
     for j=1:1%length(AllOptions.Selection)
-        for k=1:1%length(AllOptions.Distribution)
+        for k=2:length(AllOptions.Distribution)
             for ii = 1:length(AllOptions.NParticles)
                 % for each StudyCase
                 sprintf('Particle Filter using %s %s %s %s %s %s',AllOptions.Likelihood(i),AllOptions.Selection(j),AllOptions.Distribution(k),AllOptions.NParticles,AllOptions.StartPoint,AllOptions.SensorsType,AllOptions.NPp);
@@ -32,7 +31,7 @@ for i=1:1%length(AllOptions.Likelihood)
                 Options.Distribution = AllOptions.Distribution(k);
                 Options.NParticles = AllOptions.NParticles(ii);
                 Options.StartPoint = AllOptions.StartPoint;
-                Options.SensorsType = AllOptions.SensorsType;
+                Options.SensorsType = AllOptions.SensorsType(1);
                 Options.NPP = AllOptions.NPp;
                 Options.MaxSpeed = AllOptions.MaxSpeed;
                 Options.plot = AllOptions.plot;
