@@ -16,14 +16,15 @@ function Data = ParticleFilter(Options)
     
     %start tracking time
     T_Debut=tic;
-
     
+    global Indice_ % to be used in redistribution
+    global FlagRedistribution % to be used in redistribution (may be used the same way as Indice_ check later!!!)
     global N ;% Nombre de particules
     global idx_seg ;% indice du segment courant
     global test_orientation; % pour tester si on doit faire une translation(==0) ou rotation(==1)
     global Robot;
     global Particles; %position des particules
-    global pose_estime;
+    global PoseEstime;
 
 
 
@@ -67,27 +68,20 @@ function Data = ParticleFilter(Options)
     Robot.x=Start(1);
     Robot.y=Start(2);
     Robot.theta=-pi/2;
-    PP = trajectoryGenerator(Options.NPP,Obstacles,Start,End,10,Options.plot);
-    v = Options.MaxSpeed*ones(length(PP),1);
     
-%     PP=[27.5000000000000,27.2033898732974,27.4721696236095,27.7489383369825,27.6752137586831,27.4764283019429,28.0636474780856,27.4185388602376,28.4203991460876,27.0112195666672,27.5620342609094,27.5000000000000,25.8037922466977,23.5753521996448,20.4411248600483,17.0655134940915,15.0895883044919,11.8792429638910,10.3656653357397,5.86374377586899,4.02232296127434,1.85700612138352,0;53,49.7078469245938,47.9278001232452,38.1570425584487,34.6003872218339,30.9832740293548,23.6865946109579,19.1039582063765,12.6857209440967,12.1157472361984,4.37283996378318,1.15000000000000,0.476222049378097,1.88322196830137,2.60801742786320,2.01033699354604,1.69220006403437,1.59250030623232,0.852370684719879,1.81769272353208,1.06495249855317,2.18626599228018,1.15000000000000];
-%     v=[0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.90,0.900,0.900];
-
-
-
+    
 
 %% generation des particules dans l'environement  
 
     %generetion des particles autour du robot :
-    %particles=Particles_generator(26.5747,29.02,50,54,-pi,pi,N,Obstacles); 
+    PP = trajectoryGenerator(Options.NPP,Obstacles,Start,End,10,Options.plot);
+    v = Options.MaxSpeed*ones(length(PP),1);
 
-
-    %generation des particules dans toute la map :
-    particles1=Particles_generator(26.5747,29.02,-0.269984,56,-pi,pi,N/2,Obstacles);
-    particles2=Particles_generator(-5,26.5747,-0.269984,11.53,-pi,pi,N/2,Obstacles);
-    particles=[particles1,particles2];
     
     clear Particles
+    particles1=Particles_generator(26.5747,29.02,-0.269984,56,-pi,pi,floor(N/2),Obstacles);
+    particles2=Particles_generator(-5,26.5747,-0.269984,11.53,-pi,pi,N-floor(N/2),Obstacles);
+    particles=[particles1,particles2];
     Particles.x=particles(1,:);
     Particles.y=particles(2,:);
     Particles.theta=particles(3,:);
@@ -169,22 +163,22 @@ indice_controle=1;
 
 %% check for convergance
             % calcule de l'ecart-type des particules :
-            Et_x=sqrt(var(Particles.x(iNextGeneration)));
-            Et_y=sqrt(var(Particles.y(iNextGeneration)));
-            Et_theta=sqrt(var(Particles.theta(iNextGeneration)));
+            SdX=sqrt(var(Particles.x(iNextGeneration)));
+            SdY=sqrt(var(Particles.y(iNextGeneration)));
+            SdTheta=sqrt(var(Particles.theta(iNextGeneration)));
 
             % si l'ecart-type soit inferieur Ã  certin seulle <=> les particules
             % converge :
-            if(Et_x<7 && Et_y<7 && Et_theta<2)
+            if(SdX<7 && SdY<7 && SdTheta<2)
                 % la psition estimee du robot = la moyenne des particules :
-                pose_estime.x=mean(Particles.x(iNextGeneration));
-                pose_estime.y=mean(Particles.y(iNextGeneration));
-                pose_estime.theta=mean(Particles.theta(iNextGeneration));
+                PoseEstime.x=mean(Particles.x(iNextGeneration));
+                PoseEstime.y=mean(Particles.y(iNextGeneration));
+                PoseEstime.theta=mean(Particles.theta(iNextGeneration));
 
                 % information sur l'erreur 
-                Erreur.x=Robot.x-pose_estime.x;
-                Erreur.y=Robot.y-pose_estime.y;
-                Erreur.theta=Robot.theta-pose_estime.theta;
+                Erreur.x=Robot.x-PoseEstime.x;
+                Erreur.y=Robot.y-PoseEstime.y;
+                Erreur.theta=Robot.theta-PoseEstime.theta;
                 vecteur_erreur=[vecteur_erreur,[Erreur.x;Erreur.y;Erreur.theta]];
 
 
@@ -200,7 +194,7 @@ indice_controle=1;
                 vecteur_incertitude_y = [vecteur_incertitude_y, incertitude_y'];
                 vecteur_incertitude_theta = [vecteur_incertitude_theta, incertitude_theta'];
 
-                vecteur_estimation=[vecteur_estimation,[pose_estime.x;pose_estime.y;pose_estime.theta]];
+                vecteur_estimation=[vecteur_estimation,[PoseEstime.x;PoseEstime.y;PoseEstime.theta]];
 
 
 
@@ -215,7 +209,10 @@ indice_controle=1;
                     OldRobot.x = [];
                     OldRobot.y = [];
                 end
-                [Particles,OldParticles,OldRobot,vecteur_Tconvergence,vecteur_It_convergence,FlagRedistribution,Indice_,N] = resampling(Options.Distribution,Obstacles,Robot,OldRobot,pose_estime,Particles,OldParticles,Options.NParticles,T_Debut,i,FlagRedistribution,vecteur_Tconvergence,vecteur_It_convergence,Indice_,N);
+                
+                [OldParticles,OldRobot,vecteur_Tconvergence,vecteur_It_convergence] = resampling(Options.Distribution,Obstacles,OldRobot,OldParticles,Options.NParticles,T_Debut,i,vecteur_Tconvergence,vecteur_It_convergence,SdX,SdY,SdTheta);
+
+                
             end
 
             if  Indice_ ~= 0 
