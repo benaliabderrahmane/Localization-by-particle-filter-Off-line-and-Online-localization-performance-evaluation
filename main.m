@@ -15,7 +15,7 @@ AllOptions.EndPoint=[27;5;0];
 AllOptions.NPp=5;
 AllOptions.MaxSpeed=0.6;
 AllOptions.NR = 16; %number of rays
-AllOptions.plot = 0; %bool 1 plot 0 do not plot
+AllOptions.plot = 1; %bool 1 plot 0 do not plot
 
 
 size = max([length(AllOptions.Likelihood),length(AllOptions.Selection),length(AllOptions.Distribution)]);
@@ -31,7 +31,7 @@ for i=1:1%length(AllOptions.Likelihood)
                 Options.Distribution = AllOptions.Distribution(k);
                 Options.NParticles = AllOptions.NParticles(ii);
                 Options.StartPoint = AllOptions.StartPoint;
-                Options.SensorsType = AllOptions.SensorsType(1);
+                Options.SensorsType = AllOptions.SensorsType(2);
                 Options.NPP = AllOptions.NPp;
                 Options.MaxSpeed = AllOptions.MaxSpeed;
                 Options.plot = AllOptions.plot;

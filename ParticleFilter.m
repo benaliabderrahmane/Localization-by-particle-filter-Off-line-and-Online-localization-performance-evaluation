@@ -89,7 +89,7 @@ function Data = ParticleFilter(Options)
 
     % la definition du nombre de capteurs et de leurs angles :
     theta=linspace(-pi,pi,Options.NR);  
-%     theta(end)=[]; why did they use this before ???
+
 
  %% initialisation d'affichage : 
     if Options.plot
