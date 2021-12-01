@@ -73,11 +73,16 @@ function Data = ParticleFilter(Options)
 
 %% generation des particules dans l'environement  
 
-    %generetion des particles autour du robot :
-    PP = trajectoryGenerator(Options.NPP,Obstacles,Start,End,10,Options.plot);
+%     %generetion des particles autour du robot :
+%     PP = trajectoryGenerator(Options.NPP,Obstacles,Start,End,10,Options.plot);
+    PP = squeeze(Options.PP);
     v = Options.MaxSpeed*ones(length(PP),1);
-
     
+    figure(10)
+    plot(PP(1,:),PP(2,:),'*k')
+    hold on
+    plot(PP(1,:),PP(2,:),'k')
+
     clear Particles
     particles1=Particles_generator(26.5747,29.02,-0.269984,56,-pi,pi,floor(N/2),Obstacles);
     particles2=Particles_generator(-5,26.5747,-0.269984,11.53,-pi,pi,N-floor(N/2),Obstacles);
