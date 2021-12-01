@@ -69,13 +69,13 @@ function PP = trajectoryGenerator(N,Obstacles,Start,End,Fig,flag)
             Xmax = min(x(x>27));
             
 %             figure(Fig)
-%             plot([Xmin,Xmax],[Ymax,Ymax])
-%             plot([Xmax,Xmax],[Ymax,Ymin])
-%             plot([Xmax,Xmin],[Ymin,Ymin])
-%             plot([Xmin,Xmin],[Ymin,Ymax])
+%             plot([Xmin+0.75,Xmax-0.75],[Ymax,Ymax])
+%             plot([Xmax-0.75,Xmax-0.75],[Ymax,Ymin])
+%             plot([Xmax-0.75,Xmin+0.75],[Ymin,Ymin])
+%             plot([Xmin+0.75,Xmin+0.75],[Ymin,Ymax])
             
             while(1)
-                P=Particles_generator(Xmin,Xmax,Ymin,Ymax,-pi/2,pi/2, 1,Obstacles); % create a point in the rectangle 
+                P=Particles_generator(Xmin+0.75,Xmax-0.75,Ymin,Ymax,-pi/2,pi/2, 1,Obstacles); % create a point in the rectangle 
                 x= polyxpoly([PP(1,i) P(1)],[PP(2,i), P(2)],ObstaclesSegments(:,1),ObstaclesSegments(:,2)); % check for intersection
                 if(isempty(x))
                 PP(:,i+1)=P;   %add this point to PP    
@@ -125,13 +125,13 @@ function PP = trajectoryGenerator(N,Obstacles,Start,End,Fig,flag)
             end
             
 %             figure(Fig)
-%             plot([Xmin,Xmax],[Ymax,Ymax])
-%             plot([Xmax,Xmax],[Ymax,Ymin])
-%             plot([Xmax,Xmin],[Ymin,Ymin])
-%             plot([Xmin,Xmin],[Ymin,Ymax])
+%             plot([Xmin,Xmax],[Ymax-0.75,Ymax-0.75])
+%             plot([Xmax,Xmax],[Ymax-0.75,Ymin+0.75])
+%             plot([Xmax,Xmin],[Ymin+0.75,Ymin+0.75])
+%             plot([Xmin,Xmin],[Ymin+0.75,Ymax-0.75])
             
             while(1)
-                P=Particles_generator(Xmin,Xmax,Ymin,Ymax,-pi/2,pi/2, 1,Obstacles); % create a point in the rectangle 
+                P=Particles_generator(Xmin,Xmax,Ymin+0.75,Ymax-0.75,-pi/2,pi/2, 1,Obstacles); % create a point in the rectangle 
                 x= polyxpoly([PP(1,i+N1) P(1)],[PP(2,i+N1), P(2)],ObstaclesSegments(:,1),ObstaclesSegments(:,2)); % check for intersection
                 if(isempty(x))
                 PP(:,i+N1+1)=P;  %add this point to PP  
