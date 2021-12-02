@@ -36,7 +36,7 @@ function [rho,ximp,yimp,GrandObstacle]=Mesure_act(Choice,Portee,xROB,yROB,thetaR
             theta=round(theta*(1024/(2*pi)))*(2*pi/1024);
             ObstaclesComplet=[Obstacles ObstaclesMobiles];
             if isempty(ObstaclesComplet)
-                rho=inf*ones(length(theta),1);
+                rho = inf*ones(length(theta),1);
                 ximp=inf*ones(1,length(theta));
                 yimp=inf*ones(1,length(theta));
                 GrandObstacle=[];
@@ -44,8 +44,8 @@ function [rho,ximp,yimp,GrandObstacle]=Mesure_act(Choice,Portee,xROB,yROB,thetaR
                 RoboPose = [xROB, yROB, theta];
                 Active = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1];
                 Noise = Bruitage;
-                Mesurement_segmentation =  5;  %Nombre de rayon tirer par chaque US pour simuler la dispertion du capteur.
-                [ Result,ximp,yimp ] = Mesures_US( RoboPose, Obstacles, Active, Noise, Mesurement_segmentation, CoefTexture_Wall );
+                Mesurement_segmentation =  ceil(length(theta)/16);  %Nombre de rayon tirer par chaque US pour simuler la dispertion du capteur.
+                [Result,ximp,yimp ] = Mesures_US( RoboPose, Obstacles, Active, Noise, Mesurement_segmentation, CoefTexture_Wall );
                 rho = Result;
             end
             rho=min(rho,Portee);

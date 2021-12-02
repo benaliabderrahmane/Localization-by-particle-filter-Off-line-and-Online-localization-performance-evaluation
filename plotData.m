@@ -1,6 +1,15 @@
 figure(10)
 clc
 close all
+addpath('./affichage/');
+addpath('./data/');
+addpath('./likelihood/');
+addpath('./redistribution (resampling)/');
+addpath('./robot/');
+addpath('./selection/');
+addpath('./sensors/');
+addpath('./utilities/');
+    
 %load('C:\Users\benal\Dropbox\PC\Documents\projet master\Bibliographie\Code\-Localization-by-particle-filter--Off-line-and-Online-localization-performance-evaluation\data\bat5_Obstacles_detect_redone140220.mat')
 plot_Environement(Obstacles,10);%affichage de l'environnement
 n = length(Data.vecteur_Robot);
@@ -44,6 +53,6 @@ for i=2:n
     set(robPoints,'YData',Robot(2));    
     set(particPoints,'XData',Particles(1,:));
     set(particPoints,'YData',Particles(2,:));
-    pause(0.02)
+    pause(0.01)
     b = 1;
 end
