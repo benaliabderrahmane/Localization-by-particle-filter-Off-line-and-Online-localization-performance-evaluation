@@ -7,7 +7,7 @@ clc
 %% loop over all combinations of (Likelihood, Selection, Distribution) using same (NParticles, PtDepart, NCapteur) : 
 
 AllOptions.Likelihood=["likelihood1"]; % gaussienne (normal) distribution
-AllOptions.Selection=["Stochastic universel sampling","Roulette wheel"];
+AllOptions.Selection=["Roulette wheel","Stochastic universel sampling"];
 AllOptions.Distribution=["distance","standard Deviation"];
 AllOptions.SensorsType=["laser","laser front","US"]; %Laser 360° laser1 only from -30 to 210 (240 overall) LAdar for US only.
 AllOptions.NParticles=[50 100 250 400];
@@ -21,11 +21,11 @@ AllOptions.plot = 1; %bool 1 plot 0 do not plot
 size = max([length(AllOptions.Likelihood),length(AllOptions.Selection),length(AllOptions.Distribution)]);
 
 for i=1:30
-    for j=1:length(AllOptions.NParticles)
-        for k=1:length(AllOptions.NR)
-                for ii = 1:length(AllOptions.Distribution)
-                    for jj=1:length(AllOptions.Selection)
-                        for kk=1:length(AllOptions.SensorsType)
+    for j=1:1%length(AllOptions.NParticles)
+        for k=1:1%length(AllOptions.NR)
+                for ii = 1:1%length(AllOptions.Distribution)
+                    for jj=1:1%length(AllOptions.Selection)
+                        for kk=1:1%length(AllOptions.SensorsType)
                             % for each StudyCase
                             Options.Likelihood = AllOptions.Likelihood(1);
                             Options.Selection = AllOptions.Selection(jj);

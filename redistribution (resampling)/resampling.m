@@ -36,7 +36,8 @@ function [OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergence] = resa
             Distance_robot=norm([Robot.x,Robot.y]-[OldRobot.x,OldRobot.y]);
 
             % s'il y a une difference de  2.5 m, on effectue la redistribution : 
-            if(abs(Distance_Particles-Distance_robot)>2.5)
+            if(abs(Distance_Particles-Distance_robot)>1)
+                disp("hhhhhhhhhhhhhhhhhhhhhhh")
                 N=Nmax;
                 particles1=Particles_generator(26.5747,29.02,-0.269984,55,-pi,pi,floor(N/2),Obstacles);
                 particles2=Particles_generator(-5,26.5747,-0.269984,11.53,-pi,pi,N-floor(N/2),Obstacles);
