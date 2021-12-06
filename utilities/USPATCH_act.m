@@ -2,7 +2,7 @@ function [DIST,ximp,yimp,GrandObstacle]=USPATCH(Portee,angles,Obstacles,x,y,thet
 
 Sobst=size(Obstacles);
 GrandObstacle=[];
-for i=1:Sobst(2),
+for i=1:Sobst(2)
     if isfield(Obstacles,'Dist_Detect')
         if Obstacles(i).Dist_Detect>=0 || CoefTexture_Wall == 0
             GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2) [i;i]];

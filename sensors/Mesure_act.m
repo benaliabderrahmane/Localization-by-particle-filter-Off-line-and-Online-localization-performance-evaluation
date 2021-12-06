@@ -19,7 +19,7 @@ function [rho,ximp,yimp,GrandObstacle]=Mesure_act(Choice,Portee,xROB,yROB,thetaR
         case "LASER FRONT"
             % we only use the sensor on the front but we keep the same
             % number of rayes 
-            theta=linspace(-60*pi/180,pi+60*pi/180,length(theta));
+            theta=linspace(-30*pi/180,pi+30*pi/180,length(theta));
             ObstaclesComplet=[Obstacles ObstaclesMobiles];
             if isempty(ObstaclesComplet)
                 rho=inf*ones(length(theta),1);

@@ -10,20 +10,20 @@ AllOptions.Likelihood=["likelihood1"]; % gaussienne (normal) distribution
 AllOptions.Selection=["Roulette wheel","Stochastic universel sampling"];
 AllOptions.Distribution=["distance","standard Deviation"];
 AllOptions.SensorsType=["laser","laser front","US"]; %Laser 360° laser1 only from -30 to 210 (240 overall) LAdar for US only.
-AllOptions.NParticles=[50 100 250 400];
+AllOptions.NParticles=[250 250 400];
 AllOptions.EndPoint=[0; 1; 0];
 AllOptions.NPp=20;
 AllOptions.MaxSpeed=0.4;
 AllOptions.NR = [16 32 48 64]; %number of rays
-AllOptions.plot = 1; %bool 1 plot 0 do not plot
+AllOptions.plot = 0; %bool 1 plot 0 do not plot
 
 
 size = max([length(AllOptions.Likelihood),length(AllOptions.Selection),length(AllOptions.Distribution)]);
-
-for i=1:30
+here = tic
+for i=26:26
     for j=1:1%length(AllOptions.NParticles)
         for k=1:1%length(AllOptions.NR)
-                for ii = 1:1%length(AllOptions.Distribution)
+                for ii = 1:2%length(AllOptions.Distribution)
                     for jj=1:1%length(AllOptions.Selection)
                         for kk=1:1%length(AllOptions.SensorsType)
                             % for each StudyCase
@@ -59,6 +59,6 @@ for i=1:30
         end
     end
 end
-        
+toc(here) 
 
 
