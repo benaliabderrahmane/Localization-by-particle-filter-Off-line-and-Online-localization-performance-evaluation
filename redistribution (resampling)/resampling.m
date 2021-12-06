@@ -1,4 +1,4 @@
-function [OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergence] = resampling(Choice,Obstacles,OldRobot,OldParticles,Nmax,TimeDebut,iteration,vecteurTconvergence,vecteurItConvergence,SdX,SdY,SdTheta)
+function [Particles,OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergence] = resampling(Particles,Choice,Obstacles,OldRobot,OldParticles,Nmax,TimeDebut,iteration,vecteurTconvergence,vecteurItConvergence,SdX,SdY,SdTheta)
 %RESAMPLING is the redistribution function 
 %   INPUT:
 %       
@@ -10,7 +10,7 @@ function [OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergence] = resa
 %       N: number of particles (in case we change the number of particles when we redistribute)
     global Indice_
     global FlagRedistribution
-    global Particles
+    %global Particles
     global Robot
     global N
     global PoseEstime
@@ -37,11 +37,14 @@ function [OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergence] = resa
 
             % s'il y a une difference de  2.5 m, on effectue la redistribution : 
             if(abs(Distance_Particles-Distance_robot)>1)
-                disp("hhhhhhhhhhhhhhhhhhhhhhh")
                 N=Nmax;
                 particles1=Particles_generator(26.5747,29.02,-0.269984,55,-pi,pi,floor(N/2),Obstacles);
                 particles2=Particles_generator(-5,26.5747,-0.269984,11.53,-pi,pi,N-floor(N/2),Obstacles);
                 particles=[particles1,particles2];
+                OldParticles.x = [];
+                OldParticles.y = [];
+                OldRobot.x = [];
+                OldRobot.y = [];
                 Particles.x=particles(1,:);
                 Particles.y=particles(2,:);
                 Particles.theta=particles(3,:);
@@ -49,8 +52,6 @@ function [OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergence] = resa
                 FlagRedistribution=0;
             end
         case "STANDARD DEVIATION"
-
-
             if (SdX<0.5 && SdY<0.5 && SdTheta<0.2)
                 N=Nmax;
                 particles1=Particles_generator(26.5747,29.02,-0.269984,55,-pi,pi,floor(N/2),Obstacles);

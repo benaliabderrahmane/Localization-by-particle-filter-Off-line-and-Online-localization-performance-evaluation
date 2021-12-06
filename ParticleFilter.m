@@ -45,7 +45,7 @@ function Data = ParticleFilter(Options)
     vecteur_estimation=[];
     vecteur_erreur=[];
     vecteur_particles=[];
-
+    vecteur_Poids = [];
     vecteur_incertitude_x=[];
     vecteur_incertitude_y=[];
     vecteur_incertitude_theta=[];
@@ -77,12 +77,12 @@ function Data = ParticleFilter(Options)
 %     PP = trajectoryGenerator(Options.NPP,Obstacles,Start,End,10,Options.plot);
     PP = squeeze(Options.PP);
     v = Options.MaxSpeed*ones(length(PP),1);
-    
-    figure(10)
-    plot(PP(1,:),PP(2,:),'*k')
-    hold on
-    plot(PP(1,:),PP(2,:),'k')
-
+    if Options.plot
+        figure(10)
+        plot(PP(1,:),PP(2,:),'*k')
+        hold on
+        plot(PP(1,:),PP(2,:),'k')
+    end
     clear Particles
     particles1=Particles_generator(26.5747,29.02,-0.269984,56,-pi,pi,floor(N/2),Obstacles);
     particles2=Particles_generator(-5,26.5747,-0.269984,11.53,-pi,pi,N-floor(N/2),Obstacles);
@@ -206,7 +206,7 @@ indice_controle=1;
 
 
 
-%% redistribution
+                % redistribution
                 % si les particules convergent vers une position autre que la position du robot :
                 % On redistribue les particules sur toute la carte 
                 if ~exist('OldParticles','var')
@@ -218,12 +218,12 @@ indice_controle=1;
                     OldRobot.y = [];
                 end
                 
-                [OldParticles,OldRobot,vecteur_Tconvergence,vecteur_It_convergence] = resampling(Options.Distribution,Obstacles,OldRobot,OldParticles,Options.NParticles,T_Debut,i,vecteur_Tconvergence,vecteur_It_convergence,SdX,SdY,SdTheta);
+                [Particles,OldParticles,OldRobot,vecteur_Tconvergence,vecteur_It_convergence] = resampling(Particles,Options.Distribution,Obstacles,OldRobot,OldParticles,Options.NParticles,T_Debut,i,vecteur_Tconvergence,vecteur_It_convergence,SdX,SdY,SdTheta);
 
                 
             end
 
-            if  Indice_ ~= 0 
+            if  Indice_ == 1
                 Particles=testInext(iNextGeneration,Particles,Obstacles);
             else 
                 Indice_ = 1;
@@ -231,7 +231,7 @@ indice_controle=1;
             test_mesure=0;
         end
 
-%         indice_controle=1;
+        indice_controle=1;
         drawnow;
         
         % si on arrive au dernier segment on finit le controle  
@@ -242,14 +242,17 @@ indice_controle=1;
         temps_iteration=toc(temps_debut_iteration); % temps pour chaque iteration 
 
 %% save data 
+        vecteur_Poids = [vecteur_Poids;Poids];
         t_iteration = [t_iteration , temps_iteration];
-        N_Particles = [N_Particles,N];
-        iteration = [iteration , i]; 
+        %N_Particles = [N_Particles,N];
+        %iteration = [iteration , i]; 
         vecteur_Robot=[vecteur_Robot,[Robot.x;Robot.y;Robot.theta]];
         vecteur_particles=[vecteur_particles,[inf;inf;inf],[Particles.x;Particles.y;Particles.theta]];
     end
-    T_fin=toc(T_Debut); % temps du programme 
-%     Data.vecteur_erreur=vecteur_erreur; 
+    
+    
+    
+    T_fin=toc(T_Debut); % temps du programme  
     Data.desired_trajectory = PP;
     Data.vecteur_incertitude_x = vecteur_incertitude_x;
     Data.vecteur_incertitude_y = vecteur_incertitude_y;
@@ -261,9 +264,10 @@ indice_controle=1;
     Data.iteration = iteration;
     Data.T_convergence = T_convergence;
     Data.iteration_convergence = iteration_convergence;
-
+    Data.vecteur_erreur = vecteur_erreur;
     Data.T_fin = T_fin;
     Data.vecteur_particles = vecteur_particles;
+    Data.vecteur_Poids=vecteur_Poids;
 
   end
 
