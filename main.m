@@ -9,21 +9,24 @@ clc
 AllOptions.Likelihood=["likelihood1"]; % gaussienne (normal) distribution
 AllOptions.Selection=["Roulette wheel","Stochastic universel sampling"];
 AllOptions.Distribution=["distance","standard Deviation"];
-AllOptions.SensorsType=["laser","laser front","US"]; %Laser 360° laser1 only from -30 to 210 (240 overall) LAdar for US only.
-AllOptions.NParticles=[250 250 400];
+%Laser 360° laser1 only from -30 to 210 (240 overall), US for ultrasound 
+%US front for the eight front sensors and US mix is 1-0-1-0 one us activate
+%the other no...etc
+AllOptions.SensorsType=["laser","laser front","US","US front", "US mix"];
+AllOptions.NParticles=[400 750 1000];
 AllOptions.EndPoint=[0; 1; 0];
 AllOptions.NPp=20;
 AllOptions.MaxSpeed=0.4;
-AllOptions.NR = [16 32 48 64]; %number of rays
+AllOptions.NR = [16 32]; %number of rays
 AllOptions.plot = 0; %bool 1 plot 0 do not plot
 
 
 size = max([length(AllOptions.Likelihood),length(AllOptions.Selection),length(AllOptions.Distribution)]);
 here = tic
-for i=26:26
+for i=1:1%26
     for j=1:1%length(AllOptions.NParticles)
         for k=1:1%length(AllOptions.NR)
-                for ii = 1:2%length(AllOptions.Distribution)
+                for ii = 1:1%length(AllOptions.Distribution)
                     for jj=1:1%length(AllOptions.Selection)
                         for kk=1:1%length(AllOptions.SensorsType)
                             % for each StudyCase

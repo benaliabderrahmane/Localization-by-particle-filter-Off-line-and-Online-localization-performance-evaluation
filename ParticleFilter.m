@@ -179,10 +179,13 @@ indice_controle=1;
             % converge :
             if(SdX<7 && SdY<7 && SdTheta<2)
                 % la psition estimee du robot = la moyenne des particules :
-                PoseEstime.x=mean(Particles.x(iNextGeneration));
-                PoseEstime.y=mean(Particles.y(iNextGeneration));
-                PoseEstime.theta=mean(Particles.theta(iNextGeneration));
-
+                %PoseEstime.x=mean(Particles.x(iNextGeneration));
+                %PoseEstime.y=mean(Particles.y(iNextGeneration));
+                %PoseEstime.theta=mean(Particles.theta(iNextGeneration));
+                % la psition estimee du robot = la somme particules*poids
+                PoseEstime.x = Poids*Particles.x(iNextGeneration);
+                PoseEstime.y = Poids*Particles.y(iNextGeneration);
+                PoseEstime.theta = Poids*Particles.theta(iNextGeneration);
                 % information sur l'erreur 
                 Erreur.x=Robot.x-PoseEstime.x;
                 Erreur.y=Robot.y-PoseEstime.y;
@@ -235,7 +238,7 @@ indice_controle=1;
         drawnow;
         
         % si on arrive au dernier segment on finit le controle  
-        if (idx_seg == (Options.NPP+2))
+        if (idx_seg == (Options.NPP+2) || idx_seg > 4)
             fin_trajectoire = 1;
             indice_controle = 0;
         end

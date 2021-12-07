@@ -33,11 +33,11 @@ DIST=Portee*ones(length(angles),1);
 
 Bruit=Bruitage;
 
-for kk=1:length(x1),
+for kk=1:length(x1)
     [uu, vv, ii]= polyxpoly([x x1(kk)],[y y1(kk)],GrandObstacle(:,1),GrandObstacle(:,2));
     [a, b]=min((uu-x).^2+(vv-y).^2);
     
-    if ~isempty(a),
+    if ~isempty(a)
         if isfield(Obstacles,'Dist_Detect') &&  CoefTexture_Wall ~= 0
             if sqrt(a)<=(Obstacles(GrandObstacle(ii(b,2),3)).Dist_Detect*CoefTexture_Wall)%Obstacles(ii(b)).Dist_Detect
                 [ Xn, Yn, Dn ]=Add_mesurement_noise(x, y, uu(b), vv(b), Portee, Bruit);               
