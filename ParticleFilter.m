@@ -32,17 +32,17 @@ function Data = ParticleFilter(Options)
     N=Options.NParticles;  
     idx_seg=1;
     test_orientation=0;
-    
+    maxIteration = 10000;
     test_mesure=0; % indice utilisee pour effectuer une mesure pour plusieurs iterations
     Portee=4; % portee des capteurs
     fin_trajectoire=0; % test pour verifier que le robot a termine sa trajectoire 
     ObstaclesMobiles=[];
 
-    t_iteration =[]; % vecteur contient le temps de chaque iteration  
-    N_Particles=[];  % vecteur contient le nombre des particules de chaque iteration
-    iteration=[];
-    vecteur_Robot=[];
-    vecteur_estimation=[];
+    t_iteration = NaN(1,maxIteration); % vecteur contient le temps de chaque iteration  
+    N_Particles=NaN(1,maxIteration);  % vecteur contient le nombre des particules de chaque iteration
+    iteration=NaN(1,maxIteration);
+    vecteur_Robot=NaN(3,maxIteration);
+    vecteur_estimation=NaN(3,maxIteration);
     vecteur_erreur=[];
     vecteur_particles=[];
     vecteur_Poids = [];
