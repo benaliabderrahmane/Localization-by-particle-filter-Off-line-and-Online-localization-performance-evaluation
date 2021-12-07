@@ -1,18 +1,22 @@
-function [DIST,ximp,yimp,GrandObstacle]=USPATCH(Portee,angles,Obstacles,x,y,theta,Bruitage,CoefTexture_Wall)
+function [DIST,ximp,yimp,GrandObstacle]=USPATCH_act(Portee,angles,Obstacles,x,y,theta,Bruitage,CoefTexture_Wall)
 
 Sobst=size(Obstacles);
-GrandObstacle=[];
+if isfield(Obstacles,'Dist_Detect')
+    GrandObstacle=zeros(Sobst(2)*3,3);
+else
+    GrandObstacle=zeros(Sobst(2)*3,2);
+end
 for i=1:Sobst(2)
     if isfield(Obstacles,'Dist_Detect')
         if Obstacles(i).Dist_Detect>=0 || CoefTexture_Wall == 0
-            GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2) [i;i]];
-            GrandObstacle=[GrandObstacle; NaN NaN NaN];
+            GrandObstacle(i:i+1,:) = [Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2) [i;i]];
+            GrandObstacle(i+2,:) = [NaN NaN NaN];
         else
 %            nondetectable=1;
         end
     else
-        GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
-        GrandObstacle=[GrandObstacle; NaN NaN];
+        GrandObstacle(i:i+1,:) = [Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
+        GrandObstacle(i+2,:) = [NaN NaN];
     end
 end
 
@@ -32,6 +36,9 @@ y1=y+Portee*sin(h);
 DIST=Portee*ones(length(angles),1);
 
 Bruit=Bruitage;
+
+ximp = zeros(1,length(x1));
+yimp = zeros(1,length(x1));
 
 for kk=1:length(x1)
     [uu, vv, ii]= polyxpoly([x x1(kk)],[y y1(kk)],GrandObstacle(:,1),GrandObstacle(:,2));
