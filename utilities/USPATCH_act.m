@@ -1,24 +1,20 @@
 function [DIST,ximp,yimp,GrandObstacle]=USPATCH_act(Portee,angles,Obstacles,x,y,theta,Bruitage,CoefTexture_Wall)
 
-Sobst=size(Obstacles);
-if isfield(Obstacles,'Dist_Detect')
-    GrandObstacle=zeros(Sobst(2)*3,3);
-else
-    GrandObstacle=zeros(Sobst(2)*3,2);
-end
-for i=1:Sobst(2)
-    if isfield(Obstacles,'Dist_Detect')
-        if Obstacles(i).Dist_Detect>=0 || CoefTexture_Wall == 0
-            GrandObstacle(i:i+1,:) = [Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2) [i;i]];
-            GrandObstacle(i+2,:) = [NaN NaN NaN];
-        else
-%            nondetectable=1;
-        end
-    else
-        GrandObstacle(i:i+1,:) = [Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
-        GrandObstacle(i+2,:) = [NaN NaN];
-    end
-end
+% Sobst=size(Obstacles);
+global GrandObstacle
+% for i=1:Sobst(2)
+%     if isfield(Obstacles,'Dist_Detect')
+%         if Obstacles(i).Dist_Detect>=0 || CoefTexture_Wall == 0 
+%             GrandObstacle(i,:) = [Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2) [i;i]];
+%             GrandObstacle(i,:) = [NaN NaN NaN];
+%         else
+%             %nondetectable=1;
+%         end
+%     else
+%         GrandObstacle(i:i+1,1:2) = [Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
+%         GrandObstacle(i+2,1:2) = [NaN NaN];
+%     end
+% end
 
 %transforme un angle h compris entre 0 et 2pi en un angle g compris entre -pi et pi
 

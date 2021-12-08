@@ -1,4 +1,4 @@
-function [Particles,OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergence] = resampling(Particles,Choice,Obstacles,OldRobot,OldParticles,Nmax,TimeDebut,iteration,vecteurTconvergence,vecteurItConvergence,SdX,SdY,SdTheta)
+function [Particles,OldParticles,OldRobot,vecteurTconvergence] = resampling(Particles,Choice,Obstacles,OldRobot,OldParticles,Nmax,TimeDebut,iteration,vecteurTconvergence,SdX,SdY,SdTheta)
 %RESAMPLING is the redistribution function 
 %   INPUT:
 %       
@@ -16,10 +16,10 @@ function [Particles,OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergen
     global PoseEstime
     
     if FlagRedistribution==0 %si on est dans la premiere iteration de convergence
-        T_convergence=toc(TimeDebut);
-        vecteurTconvergence=[vecteurTconvergence,T_convergence];
-        iteration_convergence = iteration; 
-        vecteurItConvergence=[vecteurItConvergence,iteration_convergence];
+        %T_convergence=toc(TimeDebut);
+        %vecteurTconvergence=[vecteurTconvergence,T_convergence];
+        %iteration_convergence = iteration; 
+        %vecteurItConvergence=[vecteurItConvergence,iteration_convergence];
         OldParticles.x=PoseEstime.x;
         OldParticles.y=PoseEstime.y;
         OldRobot.x=Robot.x;
@@ -36,10 +36,10 @@ function [Particles,OldParticles,OldRobot,vecteurTconvergence,vecteurItConvergen
             Distance_robot=norm([Robot.x,Robot.y]-[OldRobot.x,OldRobot.y]);
 
             % s'il y a une difference de  2.5 m, on effectue la redistribution : 
-            if(abs(Distance_Particles-Distance_robot)>1)
+            if(abs(Distance_Particles-Distance_robot)>2.5)
                 N=Nmax;
                 particles1=Particles_generator(26.5747,29.02,-0.269984,55,-pi,pi,floor(N/2),Obstacles);
-                particles2=Particles_generator(-5,26.5747,-0.269984,11.53,-pi,pi,N-floor(N/2),Obstacles);
+                particles2=Particles_generator(-5,26.5747,-0.269984,3,-pi,pi,N-floor(N/2),Obstacles);
                 particles=[particles1,particles2];
                 OldParticles.x = [];
                 OldParticles.y = [];
