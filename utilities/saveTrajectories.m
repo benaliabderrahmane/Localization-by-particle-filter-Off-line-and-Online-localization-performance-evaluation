@@ -27,7 +27,7 @@ for j = 1:2
         End = [endX(i); endY(i); pi];
         PP = trajectoryGenerator(NPP, Obstacles, Start, End, 10, 1);
         trajectories(i+(j-1)*length(startX),:,:) = PP;
-        pause(0.1)
+        pause(1)
     end
 end
 filename = ('trajectories.mat')

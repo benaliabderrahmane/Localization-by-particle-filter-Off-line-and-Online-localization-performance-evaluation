@@ -14,27 +14,27 @@ function Data = ParticleFilter(Options)
     %load map data
     load('bat5_Obstacles_detect_redone140220.mat');
     
+%   this is performed onces and stored in a variable in
+%   Data\GrandObstacles.mat
+%    GrandObstacle=[];
+%     for i=1:Sobst(2)
+%         if isfield(Obstacles,'Dist_Detect')
+%             if Obstacles(i).Dist_Detect>=0 || CoefTexture_Wall == 0
+%                 GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2) [i;i]];
+%                 GrandObstacle=[GrandObstacle; NaN NaN NaN];
+%             else
+%     %            nondetectable=1;
+%             end
+%         else
+%             GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
+%             GrandObstacle=[GrandObstacle; NaN NaN];
+%         end
+%     end
+
     %start tracking time
     T_Debut=tic;
     
-    global GrandObstacle
 
-    Sobst=size(Obstacles);
-    GrandObstacle=[];
-    for i=1:Sobst(2)
-        if isfield(Obstacles,'Dist_Detect')
-            if Obstacles(i).Dist_Detect>=0 || CoefTexture_Wall == 0
-                GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2) [i;i]];
-                GrandObstacle=[GrandObstacle; NaN NaN NaN];
-            else
-    %            nondetectable=1;
-            end
-        else
-            GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
-            GrandObstacle=[GrandObstacle; NaN NaN];
-        end
-    end
-    
     global Indice_ % to be used in redistribution
     global FlagRedistribution % to be used in redistribution (may be used the same way as Indice_ check later!!!)
     global N ;% Nombre de particules
@@ -51,7 +51,7 @@ function Data = ParticleFilter(Options)
     idx_seg=1;
     test_orientation=0;
     %maxIteration = 10000;
-    test_mesure=0; % indice utilisee pour effectuer une mesure pour plusieurs iterations
+    testMesure=0; % indice utilisee pour effectuer une mesure pour plusieurs iterations
     Portee=4; % portee des capteurs
     fin_trajectoire=0; % test pour verifier que le robot a termine sa trajectoire 
     ObstaclesMobiles=[];
@@ -72,7 +72,7 @@ function Data = ParticleFilter(Options)
     iteration_convergence =0;
     T_convergence = 0;
 
-    %indice_controle=0; % indice pour effectuer ou non le controle
+    indiceControle=0; 
     FlagRedistribution = 0 ; 
     Indice_ = 1 ;
 
@@ -82,7 +82,6 @@ function Data = ParticleFilter(Options)
 
 %% generation des trajectoire : calcule les points de passages du robot et la vitesse correspond a  chaque segment de la trajectoire   
     Start=Options.StartPoint; % point de dépat du robot 
-    %End = Options.EndPoint;
     Robot.x=Start(1);
     Robot.y=Start(2);
     Robot.theta=-pi/2;
@@ -91,8 +90,7 @@ function Data = ParticleFilter(Options)
 
 %% generation des particules dans l'environement  
 
-%     %generetion des particles autour du robot :
-%     PP = trajectoryGenerator(Options.NPP,Obstacles,Start,End,10,Options.plot);
+
     PP = squeeze(Options.PP);
     v = Options.MaxSpeed*ones(length(PP),1);
     if Options.plot
@@ -101,13 +99,10 @@ function Data = ParticleFilter(Options)
         hold on
         plot(PP(1,:),PP(2,:),'k')
     end
-    clear Particles
-    particles1=Particles_generator(26.5747,29.02,-0.269984,56,-pi,pi,floor(N/2),Obstacles);
-    particles2=Particles_generator(-5,26.5747,-0.269984,3,-pi,pi,N-floor(N/2),Obstacles);
-    particles=[particles1,particles2];
-    Particles.x=particles(1,:);
-    Particles.y=particles(2,:);
-    Particles.theta=particles(3,:);
+    clear Particles;
+    Particles.x=Options.particles(1,:);
+    Particles.y=Options.particles(2,:);
+    Particles.theta=Options.particles(3,:);
 
 
     % la definition du nombre de capteurs et de leurs angles :
@@ -124,19 +119,19 @@ function Data = ParticleFilter(Options)
     
 
 
-indice_controle=1;
+indiceControle=1; % indice pour effectuer ou non le controle
 %% boucle du filtrage:
     i=0;
     
     while(fin_trajectoire == 0)
         temps_debut_iteration=tic;
-        test_mesure=test_mesure+1;
+        testMesure=testMesure+1;
         i=i+1;
 
         % initialisation des poids :
         Poids = ones(N,1)/N;
 
-        if (indice_controle==1)
+        if (indiceControle==1)
 
             % controle du robot :
             Robot = controle(Robot,PP,v,0);
@@ -171,9 +166,9 @@ indice_controle=1;
 
 %% measurement step
         % prendre les mesures du robot et des particules :
-        Debut_mesure=tic; % variable pour calculer le temps du mesure 
+        debutMesure=tic; % variable pour calculer le temps du mesure 
 
-        if(test_mesure==3) 
+        if(testMesure==3) 
             % mesures du robot :
             rho_rob=Mesure_act(Options.SensorsType,Portee,Robot.x,Robot.y,Robot.theta,theta,Obstacles,ObstaclesMobiles,1,1);
             for k=1:N
@@ -183,7 +178,7 @@ indice_controle=1;
                 %likelihood step
                 Poids(k)=likelihood(Options.Likelihood,rho_rob,rho_particles);
             end
-            Temps_mesure=toc(Debut_mesure); % temps pour chaque mesure 
+            Temps_mesure=toc(debutMesure); % temps pour chaque mesure 
             vecteurTemps_mesure = [vecteurTemps_mesure Temps_mesure];
 %% selection step
             iNextGeneration = selection(Options.Selection,Poids,N);
@@ -201,9 +196,9 @@ indice_controle=1;
                 %PoseEstime.theta=mean(Particles.theta(iNextGeneration));
                 % la psition estimee du robot = la somme particules*poids
 
-                PoseEstime.x = sum(Particles.x(iNextGeneration)*Poids)/sum(Poids);
-                PoseEstime.y = sum(Particles.y(iNextGeneration)*Poids)/sum(Poids);
-                PoseEstime.theta = sum(Particles.theta(iNextGeneration)*Poids)/sum(Poids);
+                PoseEstime.x = sum(Particles.x*Poids)/sum(Poids);
+                PoseEstime.y = sum(Particles.y*Poids)/sum(Poids);
+                PoseEstime.theta = sum(Particles.theta*Poids)/sum(Poids);
                 
                 % information sur l'erreur 
                 Erreur.x=Robot.x-PoseEstime.x;
@@ -252,16 +247,16 @@ indice_controle=1;
             else 
                 Indice_ = 1;
             end
-            test_mesure=0;
+            testMesure=0;
         end
 
-        indice_controle=1;
+        indiceControle=1;
         drawnow;
         
         % si on arrive au dernier segment on finit le controle  
-        if (idx_seg == (Options.NPP+2) || idx_seg > 3)
+        if (idx_seg == (Options.NPP+2))
             fin_trajectoire = 1;
-            indice_controle = 0;
+            indiceControle = 0;
         end
         temps_iteration=toc(temps_debut_iteration); % temps pour chaque iteration 
 

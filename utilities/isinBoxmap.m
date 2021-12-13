@@ -1,4 +1,4 @@
-function [ res ] = isinBoxmap( x,y,Obstacles )
+function [ res ] = isinBoxmap( x,y,Obstacles)
 %ISINBOXMAP Return if the coordonates x,y,given are within in  the map described by the given obstacles.
 %   Return 0 when false
 res=0;

@@ -76,23 +76,27 @@ addpath('./data/');
 AllOptions.Likelihood=["likelihood1"]; % gaussienne (normal) distribution
 AllOptions.Selection=["Roulette wheel","Stochastic universel sampling"];
 AllOptions.Distribution=["distance","standard Deviation"];
+%Laser 360° laser1 only from -30 to 210 (240 overall), US for ultrasound 
+%US front for the eight front sensors and US mix is 1-0-1-0 one us activate
+%the other no...etc
 AllOptions.SensorsType=["laser","laser front","US","US front", "US mix"];
 AllOptions.NParticles=[250 500 750 1000];
+AllOptions.EndPoint=[0; 1; 0];
 AllOptions.NPp=1;
 AllOptions.MaxSpeed=0.4;
 AllOptions.NR = [8 16 32]; %number of rays
 AllOptions.plot = 0; %bool 1 plot 0 do not plot
+
 for i=1:1%18
-    for j=1:1%length(AllOptions.NParticles)
-        for k=1:1%length(AllOptions.NR)
+    for j=2:2%length(AllOptions.NParticles)
+        for k=2:2%length(AllOptions.NR)
                 for ii = 1:1%length(AllOptions.Distribution)
-                    for jj=1:1%length(AllOptions.Selection)
+                    for jj=2:2%length(AllOptions.Selection)
                         for kk=1:5%length(AllOptions.SensorsType)
                             % change this before any plot
                             iii = kk-1; 
                             maxiteration = 100;%length(Data.vecteur_incertitude_x(1,:));
                             iiimax = length(AllOptions.SensorsType);
-                            
                             Options.Likelihood = AllOptions.Likelihood(1);
                             Options.Selection = AllOptions.Selection(jj);
                             Options.Distribution = AllOptions.Distribution(ii);
@@ -106,7 +110,7 @@ for i=1:1%18
                             Options.EndPoint=AllOptions.EndPoint;
                             Options.PP = trajectories(i,:,:);
                             %lunch tests
-                            str = strcat(Options.Likelihood," ",Options.Selection," ",Options.Distribution," ",num2str(Options.NParticles)," ",Options.SensorsType," ",num2str(Options.NPP)," ",num2str(Options.MaxSpeed)," ",num2str(Options.NR), " trajectory2 number ",num2str(i))
+                            str = strcat(Options.Likelihood," ",Options.Selection," ",Options.Distribution," ",num2str(Options.NParticles)," ",Options.SensorsType," ",num2str(Options.NPP)," ",num2str(Options.MaxSpeed)," ",num2str(Options.NR), " trajectory22 number ",num2str(i))
                             str = regexprep(str,'[^0-9a-zA-Z]','_');
                             filename = strcat(str,".mat");
                             load(filename)
