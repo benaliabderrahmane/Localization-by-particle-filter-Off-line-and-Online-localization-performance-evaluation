@@ -190,36 +190,31 @@ indiceControle=1; % indice pour effectuer ou non le controle
             SdTheta=sqrt(var(Particles.theta(iNextGeneration)));
 
 
-                % la psition estimee du robot = la moyenne des particules :
-                %PoseEstime.x=mean(Particles.x(iNextGeneration));
-                %PoseEstime.y=mean(Particles.y(iNextGeneration));
-                %PoseEstime.theta=mean(Particles.theta(iNextGeneration));
-                % la psition estimee du robot = la somme particules*poids
-
-                PoseEstime.x = sum(Particles.x*Poids)/sum(Poids);
-                PoseEstime.y = sum(Particles.y*Poids)/sum(Poids);
-                PoseEstime.theta = sum(Particles.theta*Poids)/sum(Poids);
-                
-                % information sur l'erreur 
-                Erreur.x=Robot.x-PoseEstime.x;
-                Erreur.y=Robot.y-PoseEstime.y;
-                Erreur.theta=Robot.theta-PoseEstime.theta;
-                vecteur_erreur=[vecteur_erreur,[Erreur.x;Erreur.y;Erreur.theta]];
+            PoseEstime.x = sum(Particles.x*Poids)/sum(Poids);
+            PoseEstime.y = sum(Particles.y*Poids)/sum(Poids);
+            PoseEstime.theta = sum(Particles.theta*Poids)/sum(Poids);
 
 
-                % information sur l'incertitude
-                incertitude_x(1) = min(Robot.x-Particles.x(iNextGeneration));
-                incertitude_x(2) = max(Robot.x-Particles.x(iNextGeneration));
-                incertitude_y(1) = min(Robot.y-Particles.y(iNextGeneration));
-                incertitude_y(2) = max(Robot.y-Particles.y(iNextGeneration));
-                incertitude_theta(1) = min(Robot.theta-Particles.theta(iNextGeneration));
-                incertitude_theta(2) = max(Robot.theta-Particles.theta(iNextGeneration));
+            % information sur l'erreur 
+            Erreur.x=Robot.x-PoseEstime.x;
+            Erreur.y=Robot.y-PoseEstime.y;
+            Erreur.theta=Robot.theta-PoseEstime.theta;
+            vecteur_erreur=[vecteur_erreur,[Erreur.x;Erreur.y;Erreur.theta]];
 
-                vecteur_incertitude_x = [vecteur_incertitude_x, incertitude_x'];
-                vecteur_incertitude_y = [vecteur_incertitude_y, incertitude_y'];
-                vecteur_incertitude_theta = [vecteur_incertitude_theta, incertitude_theta'];
 
-                vecteur_estimation=[vecteur_estimation,[PoseEstime.x;PoseEstime.y;PoseEstime.theta]];
+            % information sur l'incertitude
+            incertitude_x(1) = min(Robot.x-Particles.x(iNextGeneration));
+            incertitude_x(2) = max(Robot.x-Particles.x(iNextGeneration));
+            incertitude_y(1) = min(Robot.y-Particles.y(iNextGeneration));
+            incertitude_y(2) = max(Robot.y-Particles.y(iNextGeneration));
+            incertitude_theta(1) = min(Robot.theta-Particles.theta(iNextGeneration));
+            incertitude_theta(2) = max(Robot.theta-Particles.theta(iNextGeneration));
+
+            vecteur_incertitude_x = [vecteur_incertitude_x, incertitude_x'];
+            vecteur_incertitude_y = [vecteur_incertitude_y, incertitude_y'];
+            vecteur_incertitude_theta = [vecteur_incertitude_theta, incertitude_theta'];
+
+            vecteur_estimation=[vecteur_estimation,[PoseEstime.x;PoseEstime.y;PoseEstime.theta]];
 
 
             % si l'ecart-type soit inferieur Ã  certin seulle <=> les particules
@@ -254,7 +249,7 @@ indiceControle=1; % indice pour effectuer ou non le controle
         drawnow;
         
         % si on arrive au dernier segment on finit le controle  
-        if (idx_seg == (Options.NPP+2))
+        if (idx_seg == (Options.NPP+2) || idx_seg > 4)
             fin_trajectoire = 1;
             indiceControle = 0;
         end

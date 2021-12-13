@@ -33,8 +33,10 @@ DIST=Portee*ones(length(angles),1);
 
 Bruit=Bruitage;
 
+
 ximp = zeros(1,length(x1));
 yimp = zeros(1,length(x1));
+
 
 for kk=1:length(x1)
     [uu, vv, ii]= polyxpoly([x x1(kk)],[y y1(kk)],GrandObstacle(:,1),GrandObstacle(:,2));
