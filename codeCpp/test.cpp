@@ -21,6 +21,9 @@ double wrapAngle(double);
 MesureAct()
 double likelihood();
 vector<double> selection(vector<double>,int);
+bool checkRedistribution();
+
+
 
 int main()
 {
@@ -105,9 +108,6 @@ Obstacles Obstacles1;
             poids[k] = likelihood(rhoRobot,rhoParticles);
         }
 
-        //selection:
-        iNextGeneration = selection(poids,N);
-
         //calculate the estimated position:
         sumPoids = accumulate(poids.begin(), poids.end(), 0);
         poseEstimate=[0;0;0];
@@ -121,8 +121,21 @@ Obstacles Obstacles1;
         poseEstimate[1] = poseEstimate[1]/sumPoids;
         poseEstimate[2] = poseEstimate[2]/sumPoids;
 
-        //check for convergence:
+        //selection:
+        iNextGeneration = selection(poids,N);
 
+
+
+        //check for redistribution:
+        bool flagRedistribution = checkRedistribution();
+        ig (flagRedistribution)
+        {
+            //redistribute particels
+                particles1 = particleGenerator(26.5747,29.02,-0.269984,56,-M_PI,M_PI,N/2,Obstacles1);
+                particles2 = particleGenerator(-5,26.5747,-0.269984,3,-M_PI,M_PI,N/2,Obstacles1);
+                particles1.insert( particles1.end(), particles2.begin(), particles2.end() );
+                particles = particles1;
+        }
 
 
     }
