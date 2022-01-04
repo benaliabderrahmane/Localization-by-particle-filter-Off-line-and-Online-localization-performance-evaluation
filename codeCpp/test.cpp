@@ -5,7 +5,8 @@
 #include <sstream>
 #include <math.h>
 #include <numeric>
-
+#include <time.h>
+#include <random>
 
 using namespace std;
 
@@ -94,7 +95,7 @@ Obstacles Obstacles1;
         {
             particles[j][0] = particles[j][0]+dx; //new x for particle number j
             particles[j][1] = particles[j][1]+dy; //new y for particle number j
-            particles[j][3] = wrapAngle(particles[j][2]+dtheta); //new theta for particle number j
+            particles[j][2] = wrapAngle(particles[j][2]+dtheta); //new theta for particle number j
         }
 
         rhoRobot = 0; //get robot measurement to be used in likelihood
