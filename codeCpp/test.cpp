@@ -111,8 +111,8 @@ Obstacles Obstacles1;
 
         //calculate the estimated position:
         sumPoids = accumulate(poids.begin(), poids.end(), 0);
-        poseEstimate=[0;0;0];
-        for (i=0;i<=N;i++)
+        poseEstimate={0,0,0};
+        for (int i=0;i<=N;i++)
         {
             poseEstimate[0] = poseEstimate[0]+particles[i][0]*poids[i];
             poseEstimate[1] = poseEstimate[1]+particles[i][1]*poids[i];
@@ -129,7 +129,7 @@ Obstacles Obstacles1;
 
         //check for redistribution:
         bool flagRedistribution = checkRedistribution();
-        ig (flagRedistribution)
+        if (flagRedistribution)
         {
             //redistribute particels
                 particles1 = particleGenerator(26.5747,29.02,-0.269984,56,-M_PI,M_PI,N/2,Obstacles1);
