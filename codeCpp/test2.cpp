@@ -10,24 +10,14 @@
 
 using namespace std;
 
-double closest(vector<double> const& vec, double value)
-{
-    auto const it = lower_bound(vec.begin(), vec.end(), value);
-    if (it == vec.end()) { return -1; }
-    return distance(vec.begin(), it);
-}
 
 
 int main()
 {
 
+double lambda[3];
 
-double n = nan("1");
+lambda = {3,3,3};
 
-double a = 0;
-
-double res = a*n;
-
-cout << res ;
-return 0;
+cout << lambda[0];
 }

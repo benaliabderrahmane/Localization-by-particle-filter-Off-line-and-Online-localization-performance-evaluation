@@ -1,7 +1,7 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 #define _USE_MATH_DEFINES
-#define pi 3.14159265
+
 
 #include <iostream>
 #include <vector>

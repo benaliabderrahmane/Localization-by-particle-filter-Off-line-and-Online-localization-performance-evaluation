@@ -31,7 +31,7 @@ bool isInBoxMax(double x,double y,Obstacles obstacle)
         int success = 0;
         for(int j=0; j<7; j++)
         {
-            double h = distribution(generator)*2*pi-pi;
+            double h = distribution(generator)*2*M_PI-M_PI;
             x1[j] = x+99999+cos(h);
             y1[j] = y+99999+sin(h);
 
