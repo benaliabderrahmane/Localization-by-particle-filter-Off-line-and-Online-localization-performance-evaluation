@@ -73,7 +73,7 @@ Obstacles obstacles1;
 
     bool finTrajectoire = 0; // to be updagted in the loop
 
-    vector<double> iNextGeneration(N,0);
+    vector<int> iNextGeneration(N,0);//next generation indeces 
     vector<double> poids(N,1/N); //vector of N element all equal to 1/N
     double poseEstimate[3]; //estimated position of the robot
 
@@ -123,7 +123,9 @@ Obstacles obstacles1;
 
 
         //check for redistribution:
-        bool flagRedistribution = checkRedistribution();
+        bool flag1, flag2;
+        check_redistribution(poseEstimate, particles, Robot, OldRobot, SdX, SdY, SdTheta, flag1, flag2);
+        bool flagRedistribution = flag1 || flag2;
         if (flagRedistribution)
         {
             //redistribute particels

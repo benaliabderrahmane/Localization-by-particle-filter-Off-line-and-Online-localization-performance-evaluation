@@ -25,21 +25,21 @@ void check_redistribution(double PoseEstime[], double OldParticles[], double Rob
 	double Distance_Particles = sqrt(pow( (PoseEstime[0] - OldParticles[0]) , 2) + pow( (PoseEstime[1] - OldParticles[1]) , 2)); 
 	double Distance_robot = sqrt(pow( (Robot[0] - OldRobot[0]) , 2) + pow( (Robot[1] - OldRobot[1]) , 2));
 	
-	if((abs(Distance_Particles - Distance_robot) > 2.5)){
+	if((abs(Distance_Particles - Distance_robot) > 2.5))
+	{
 		flag1 = true;
-		cout<<"flag 1:\t"<<"true"<<endl;
 	}
-	else{
+	else
+	{
 		flag1 = false;
-		cout<<"flag 1:\t"<<"false"<<endl;
 	}
-	if(SdX < 0.5 && SdY < 0.5 && SdTheta < 0.2){
+	if(SdX < 0.5 && SdY < 0.5 && SdTheta < 0.2)
+	{
 		flag2 = true;
-		cout<<"flag 2:\t"<<"true"<<endl;
 	}
-	else{
+	else
+	{
 		flag2 = false;
-		cout<<"flag 2:\t"<<"false"<<endl;
 	}
 }
 
@@ -59,5 +59,8 @@ int main()
 	double SdY = sqrt(var(particlesy));
 	double SdTheta = sqrt(var(particlest));
 	bool flag1, flag2;
+
 	check_redistribution(PoseEstime, OldParticles, Robot, OldRobot, SdX, SdY, SdTheta, flag1, flag2);
+
+
 }
