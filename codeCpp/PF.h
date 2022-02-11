@@ -2,7 +2,7 @@
 #include <Tools/Safe_shared.hpp>
 #include <datas/sensor_data.hpp>
 #include <vector>
-
+#include "functions.h"
 #define PF_IDLEMODE 0
 #define PF_INITMODE 1
 #define PF_RUNMODE 2
