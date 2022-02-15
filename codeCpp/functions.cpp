@@ -201,6 +201,81 @@ double var(vector<double> v){
     variance /= v.size();
     return variance;
 }
+double coefficients(double sd[], int N)
+{
+    double k;
+    double mean = (sd[0]+sd[1]+sd[2])/3;
+    if (N>50)
+    {
+        if (mean > 5)
+        {
+            k=1;
+        }
+        else
+        {
+            k=0.8
+        }
+    }
+    else
+    {
+        k=0.8;
+    }
+    return k;
+}
+
+vector<vector<double>> testInext(vector<double> iNextGeneration, vector<vector<double>> Particles, int &N, Obstacles Obstacles1)
+{
+    vector<vector<double>>  Particles_new;
+    vector<vector<double>>  Particles_IN;
+    sort(iNextGeneration.begin(), iNextGeneration.end());
+    N = 0;
+    int cmpt=1;
+    vector<vector<double>> Tab;
+    vector<double> temp;
+    double xmin, xmax, ymin, ymax, thetamin, thetamax;
+
+    for (int i=0;i<(iNextGeneration.size()-1);i++)
+    {
+        if (iNextGeneration[i]==iNextGeneration[i+1])
+        {
+            cmpt++;
+        }
+        else
+        {
+            temp.push_back(iNextGeneration[i]);
+            temp.push_back(cmpt);
+            Tab.push_back(temp);
+            temp.clear();
+            cmpt = 1;
+        }
+    }
+    temp.push_back(iNextGeneration[iNextGeneration.size()-1]);
+    temp.push_back(cmpt);
+    Tab.push_back(temp);
+    for (int i=0;i<Tab.size();i++)
+    {
+        xmin = Particles[Tab[i][0]][0]-0.25;
+        xmax = Particles[Tab[i][0]][0]-0.25;
+        ymin = Particles[Tab[i][1]][0]-0.25;
+        ymax = Particles[Tab[i][1]][0]-0.25;
+        thetamin = Particles[Tab[i][1]][0]-M_PI/8;
+        thetamax = Particles[Tab[i][1]][0]+M_PI/8;  
+        Particles_IN =particleGenerator(xmin,xmax,ymin,ymax,thetamin,thetamax,Tab[i][1],Obstacles1);
+        Particles_new.insert( Particles_new.end(), Particles_IN.begin(), Particles_IN.end() );
+        N += Tab[i][1];
+    }
+    return Particles_new;
+}
+
+N_new=round(coefficients(Particles)*Tab(i,2));
+Particles_new=[Particles_new,Particles_generator(xmin,xmax,ymin,ymax,theta_min,theta_max,N_new,Obstacles)];
+NN=NN+N_new;
+end
+P_new.x=Particles_new(1,:);
+P_new.y=Particles_new(2,:);
+P_new.theta=Particles_new(3,:);
+end
+
 
 void check_redistribution(double PoseEstime[], double OldParticles[], double Robot[], double OldRobot[], double SdX, double SdY, double SdTheta, bool &flag1, bool &flag2)
 {
@@ -276,7 +351,8 @@ vector<pdd> Intersection(double x1, double x2, double y1, double y2, vector<vect
     //cout<<"------------------------------------"<<endl;
     pdd m1, m2;
     vector<pdd> v;
-    for (i = 0; i< map.size()/2-1; i++){
+    for (i = 0; i< map.size()/2-1; i++)
+    {
 		m1 = make_pair(map[i*2][0], map[i*2][1]);
 		m2 = make_pair(map[i*2+1][0], map[i*2+1][1]);
         //cout << "map points :\t"<<endl;
@@ -289,7 +365,6 @@ vector<pdd> Intersection(double x1, double x2, double y1, double y2, vector<vect
         v.push_back(intersection);
         //cout << v[i].first << "\t" << v[i].second << endl;
 	}
-
     return v;
 }
 
@@ -353,7 +428,7 @@ vector<double> &rho, vector<double> &ximp, vector<double> &yimp)
 {
 	for(int i=0; i!=theta.size(); i++)
 	{
-		theta[i] = round(theta[i]*(1024/(2*M_PI)))*(2*M_PI/1024);
+		theta[i] = round(theta[i]*(1022/(2*M_PI)))*(2*M_PI/1022);
 	}
 
 	if(obstacle.size()==0){
@@ -370,4 +445,30 @@ vector<double> &rho, vector<double> &ximp, vector<double> &yimp)
 	for(int i=0; i<rho.size();i++){
 		rho[i] = min(rho[i], Portee);
 	}
+}
+
+
+std::vector<double> linspace(double start, double end, int num)
+{
+
+  std::vector<double> linspaced;
+
+
+  if (num == 0) { return linspaced; }
+  if (num == 1) 
+    {
+      linspaced.push_back(start);
+      return linspaced;
+    }
+
+  double delta = (end - start) / (num - 1);
+
+  for(int i=0; i < num-1; ++i)
+    {
+      linspaced.push_back(start + delta * i);
+    }
+  linspaced.push_back(end); // I want to ensure that start and end
+                            // are exactly the same as the input
+                            // in case start + delta * num is different then end
+  return linspaced;
 }
