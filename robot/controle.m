@@ -1,4 +1,4 @@
-function [Robot_fin] = controle(Robot,PP,v,bruit)
+function [Robot_fin,u,dt] = controle(Robot,PP,v,bruit)
 global idx_seg; global test_orientation; 
 
 dot_theta = 0.5; % vitesse de rotation 
@@ -12,24 +12,22 @@ if ((theta_new -Robot.theta) ~= 0)
 end
 
 if (test_orientation == 1)
-        u = 0; % mettre la vitesse linéaire  a 0
-        theta_orientation = AngleWrap(theta_new-Robot.theta); % calcule l'angle de rotation restant pour que le robot atteigne l'orientation désirée 
-                                                              %   la fonction AngleWrap : pour bornée l'angle entre -pi et pi avec
+        u = 0; % mettre la vitesse linÃ©aire  a 0
+        theta_orientation = AngleWrap(theta_new-Robot.theta); % calcule l'angle de rotation restant pour que le robot atteigne l'orientation dÃ©sirÃ©e 
+                                                              %   la fonction AngleWrap : pour bornÃ©e l'angle entre -pi et pi avec
         %% calcule la vitesse de rotation dt                                                   
-        if(sign(theta_orientation) == -1)  % si theta_orientation est négative, le robot tourne dans la sens négatif 
-            dt=max(-dot_theta,theta_orientation*10); %  pour éviter toute erreur d'orientation 
+        if(sign(theta_orientation) == -1)  % si theta_orientation est nÃ©gative, le robot tourne dans la sens nÃ©gatif 
+            dt=max(-dot_theta,theta_orientation*10); %  pour Ã©viter toute erreur d'orientation 
+
         else 
             dt=min(dot_theta,theta_orientation*10);
         end
         %% calcule la nouvelle pose du robot 
-       
         Robot_fin = Run_Robot( Robot, u, dt, bruit);
         Robot_fin.theta=AngleWrap(Robot_fin.theta);
-        if( abs(theta_new-Robot_fin.theta)<(10^(-8))) % si Robot.theta = l'orientation désirée on passe à la transmlation
+        if( abs(theta_new-Robot_fin.theta)<(10^(-2))) % si Robot.theta = l'orientation dÃ©sirÃ©e on passe Ã  la translation
             test_orientation = 0;
-            
         end
-  
 
 else
     dt = 0; % mettre la vitesse angulaire  a 0
@@ -37,8 +35,9 @@ else
         
         %% calcule la distance entre le robot et le prochain point de passage
         dist= sqrt((Robot.x-PP(1, idx_seg+1))^2+(Robot.y-PP(2,idx_seg+1))^2);
-        
         u =min( v(idx_seg),dist*10); % calcul u 
+        u = 0.4;
+        %end
         %% calcule la neuvelle pose du robot
       
         Robot_fin = Run_Robot( Robot, u, dt, bruit);
@@ -46,7 +45,7 @@ else
                                                                                                 % pour faire le test 
         
         if(dist_Rob_finSEG<(10^(-8)))
-            test_orientation = 1; % si Robot rejoindre la fin de segement on passe à la rotation
+            test_orientation = 1; % si Robot rejoindre la fin de segement on passe Ã  la rotation
             idx_seg=idx_seg+1; % pour le prouchaine calcule on va utiliser des neuveau point de passage 
         end
 end
