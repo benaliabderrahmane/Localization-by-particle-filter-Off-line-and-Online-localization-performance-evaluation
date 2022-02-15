@@ -35,6 +35,8 @@ double likelihood(vector<double> rho, vector<double> rho_particles);
 int closest(vector<double> const& vec, double value);
 vector<int> selection(vector<double> weights,int N);
 double var(vector<double> v);
+double coefficients(double sd[],int N);
+vector<vector<double>> testInext(vector<double> iNextGeneration, vector<vector<double>> Particles, int &N, Obstacles Obstacles1);
 void check_redistribution(double PoseEstime[], double OldParticles[], double Robot[], double OldRobot[], double SdX, double SdY, double SdTheta, bool &flag1, bool &flag2);
 void displayPoint(pdd P);
 pdd Intersection_seg(pdd A, pdd B, pdd C, pdd D);
@@ -42,9 +44,8 @@ vector<pdd> Intersection(double x1, double x2, double y1, double y2, vector<vect
 void uspatch_act(double Portee, vector<double> angles, vector<vector<double>> obstacle,
 vector <double> distDetect, double x, double y, double theta,
 vector<double> &DIST, vector<double> &ximp, vector<double> &yimp);
-
 void Mesure_act(double Portee, vector<double> theta, vector<vector<double>> obstacle,
 vector <double> distDetect, double xROB,double yROB,double thetaROB,
 vector<double> &rho, vector<double> &ximp, vector<double> &yimp);
-
+std::vector<double> linspace(double start, double end, int num);
 #endif
