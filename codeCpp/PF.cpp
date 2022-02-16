@@ -46,7 +46,7 @@ std::vector<double> LZA_LAS;
 std::vector<struct timespec> LogTime;
 std::vector<int> LogMode;
 
-int N = 200; //particle number (need to be an even number)
+int N = 600; //particle number (need to be an even number)
 int portee = 4; //portee of sensors
 
 vector<vector<double>> particles1; //particles in the first part of the map
@@ -229,6 +229,7 @@ double ssr=0;
             odoposP3D_Old = odoposP3D;
             for (int j=0;j<=N;j++)
             {
+              //tempParticle is of type euclid_position
               tempParticle.pos.x = particles[j][0];
               tempParticle.pos.y = particles[j][1];
               tempParticle.dir.theta = particles[j][2];
@@ -253,6 +254,11 @@ double ssr=0;
               poids[k] = likelihood(rhoRobot,rhoParticles);
             }
 
+            //selection:
+            iNextGeneration = selection(poids,N);
+            //get the new particles 
+            particles = testInext(iNextGeneration, Particles, N, Obstacles1);
+
             //calculate the estimated position:
             auto sumPoids = accumulate(poids.begin(), poids.end(), 0);
             poseEstimate[0] = 0;
@@ -274,10 +280,6 @@ double ssr=0;
             Val_estime.dir.theta = poseEstimate[2];
             clock_gettime(CLOCK_REALTIME, &TimeEstime);
 
-            //selection:
-            iNextGeneration = selection(poids,N);
-            //get the new particles 
-            particles = testInext(iNextGeneration, Particles, N, Obstacles1);
 
             // check for convergance
             for (int ii = 0; ii<N; ii++)
@@ -324,15 +326,15 @@ double ssr=0;
 
             if (flagRedistribution)
             {
-                //redistribute particels
-                    particles1 = particleGenerator(26.5747,29.02,-0.269984,56,-M_PI,M_PI,N/2,Obstacles1);
-                    particles2 = particleGenerator(-5,26.5747,-0.269984,3,-M_PI,M_PI,N/2,Obstacles1);
-                    particles1.insert( particles1.end(), particles2.begin(), particles2.end() );
-                    particles = particles1;
-                    for (int k=0;k<=N;k++)
-                    {
-                        poids[k] = 1/N;
-                    }
+              //redistribute particels
+              particles1 = particleGenerator(26.5747,29.02,-0.269984,56,-M_PI,M_PI,N/2,Obstacles1);
+              particles2 = particleGenerator(-5,26.5747,-0.269984,3,-M_PI,M_PI,N/2,Obstacles1);
+              particles1.insert( particles1.end(), particles2.begin(), particles2.end() );
+              particles = particles1;
+              for (int k=0;k<=N;k++)
+              {
+                  poids[k] = 1/N;
+              }
             }
 
             if (presentMode == PF_RUNMODE && flagConvergance)
@@ -363,11 +365,13 @@ double ssr=0;
           savefile << poseEstimate[0] << ",";
           savefile << poseEstimate[1] << ",";
           savefile << poseEstimate[2] << ",";
-          savefile << wsd[0] << ",";
-          savefile << wsd[1] << ",";
-          savefile << wsd[2] << ",";
-          savefile << N << ",";
-          savefile << NR << ",";
+          savefile << wsd[0] << ","; //wheighted standard deviation for x
+          savefile << wsd[1] << ","; //wheighted standard deviation for y
+          savefile << wsd[2] << ","; //wheighted standard deviation for theta
+          savefile << *max_element(poids.begin(), poids.end()) << ";"; //return the max wheight 
+          savefile << sumPoids << ","; //return sum of the wheights 
+          savefile << N << ","; //return number of particles
+          savefile << NR << ","; //return number of rayes 
           savefile << flagConvergance << ",";
           savefile << flagRedistribution << ",";
 
