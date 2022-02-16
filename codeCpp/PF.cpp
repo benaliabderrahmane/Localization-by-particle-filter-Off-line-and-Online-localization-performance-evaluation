@@ -78,7 +78,7 @@ vector<int> indexes;
 
 bool firstIteration = true; //bool if it's first iteration of the simulation
 bool flagConvergance = false; // flag for convergance 
-bool flagRedistribution = fase; // flag for redistribution 
+bool flagRedistribution = false; // flag for redistribution 
 
 euclid_position tempParticle; //temporary particle to be used in control part
 
