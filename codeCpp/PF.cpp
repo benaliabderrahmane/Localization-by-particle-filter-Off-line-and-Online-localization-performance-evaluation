@@ -33,9 +33,11 @@ struct timespec TimeLog;
 laser_4m_record relevel1, relevel2;
 euclid_position odoposP3D,odoposP3D_Old, Val_estime;
 
+/*
 odoposP3D_Old.pos.x = 0;
 odoposP3D_Old.pos.y = 0;
 odoposP3D_Old.dir.theta = 0;
+*/
 std::vector<struct polar_coordinate> Telemetries;
 std::vector<struct polar_coordinate> OldLas1,OldLas2;
 int Running=0;
@@ -169,7 +171,7 @@ double ssr=0;
     presentMode=PF_IDLEMODE;
     Las2Old=LauncheTime;
     Las1Old=LauncheTime;
-
+    odom.Get(odoposP3D_Old);
     /***************MAIN LOOP*********************/
     Running=1;
     while(Running){
@@ -254,11 +256,6 @@ double ssr=0;
               poids[k] = likelihood(rhoRobot,rhoParticles);
             }
 
-            //selection:
-            iNextGeneration = selection(poids,N);
-            //get the new particles 
-            particles = testInext(iNextGeneration, Particles, N, Obstacles1);
-
             //calculate the estimated position:
             auto sumPoids = accumulate(poids.begin(), poids.end(), 0);
             poseEstimate[0] = 0;
@@ -279,6 +276,7 @@ double ssr=0;
             Val_estime.pos.y = poseEstimate[1];
             Val_estime.dir.theta = poseEstimate[2];
             clock_gettime(CLOCK_REALTIME, &TimeEstime);
+
 
 
             // check for convergance
@@ -324,6 +322,8 @@ double ssr=0;
               flagRedistribution = false;
             }
 
+
+
             if (flagRedistribution)
             {
               //redistribute particels
@@ -335,6 +335,13 @@ double ssr=0;
               {
                   poids[k] = 1/N;
               }
+            }
+            else
+            {
+              //selection:
+              iNextGeneration = selection(poids,N);
+              //get the new particles 
+              particles = testInext(iNextGeneration, Particles, N, Obstacles1);
             }
 
             if (presentMode == PF_RUNMODE && flagConvergance)
@@ -352,12 +359,9 @@ double ssr=0;
           /***************Logging**************/
           savefile << (StartTime.tv_nsec+(StartTime.tv_sec*1000000000)) << "," << presentMode << ",";
           savefile << (TimeLog.tv_nsec+(TimeLog.tv_sec*1000000000)) << ",";
-          savefile << (StartTime.tv_nsec+(StartTime.tv_sec*1000000000)) << ",";
           savefile << (Las1Old.tv_nsec+(Las1Old.tv_sec*1000000000)) << ",";
           savefile << (Las2Old.tv_nsec+(Las2Old.tv_sec*1000000000)) << ",";
           savefile << (Todo.tv_nsec+(Todo.tv_sec*1000000000)) << ",";
-          savefile << (Toldodo.tv_nsec+(Toldodo.tv_sec*1000000000)) << ",";
-          savefile << (LauncheTime.tv_nsec+(LauncheTime.tv_sec*1000000000)) << ",";
           savefile << (TimeEstime.tv_nsec+(TimeEstime.tv_sec*1000000000)) << ",";
           savefile << odom.pos.x << ",";
           savefile << odom.pos.y << ",";
