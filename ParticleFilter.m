@@ -14,22 +14,6 @@ function Data = ParticleFilter(Options)
     %load map data
     load('bat5_Obstacles_detect_redone140220.mat');
     
-%   this is performed onces and stored in a variable in
-%   Data\GrandObstacles.mat
-%    GrandObstacle=[];
-%     for i=1:Sobst(2)
-%         if isfield(Obstacles,'Dist_Detect')
-%             if Obstacles(i).Dist_Detect>=0 || CoefTexture_Wall == 0
-%                 GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2) [i;i]];
-%                 GrandObstacle=[GrandObstacle; NaN NaN NaN];
-%             else
-%     %            nondetectable=1;
-%             end
-%         else
-%             GrandObstacle=[GrandObstacle;Obstacles(i).Pos_vertex(:,1)  Obstacles(i).Pos_vertex(:,2)];
-%             GrandObstacle=[GrandObstacle; NaN NaN];
-%         end
-%     end
 
     %start tracking time
     T_Debut=tic;
@@ -122,7 +106,10 @@ indiceControle=1; % indice pour effectuer ou non le controle
 %% boucle du filtrage:
     i=0;
     
-    while(fin_trajectoire == 0 && i~=75) %||i>75 since we know we converge before 75 iterations
+    while(fin_trajectoire == 0)
+    %%while(fin_trajectoire == 0)%&& i~=75) use this to stop PF after 75
+    %%iterations
+    
         temps_debut_iteration=tic;
         testMesure=testMesure+1;
         i=i+1
@@ -210,8 +197,10 @@ indiceControle=1; % indice pour effectuer ou non le controle
                    % si l'ecart-type soit inferieur Ã  certin seulle <=> les particules
                         % converge :
                     vecteurFlagConvergence = [vecteurFlagConvergence 1];
-                    fin_trajectoire = 1;
-                    indiceControle = 0;
+                    
+                    %% the 2 next lines to stop PF after convergence 
+%                     fin_trajectoire = 1;
+%                     indiceControle = 0;
               else
                 vecteurFlagConvergence = [vecteurFlagConvergence 0];  
                 end
@@ -277,6 +266,7 @@ indiceControle=1; % indice pour effectuer ou non le controle
             fin_trajectoire = 1;
             indiceControle = 0;
         end
+        
         temps_iteration=toc(temps_debut_iteration); % temps pour chaque iteration 
         vecteur_Poids = [vecteur_Poids;Poids];
         t_iteration = [t_iteration , temps_iteration];
@@ -290,6 +280,7 @@ indiceControle=1; % indice pour effectuer ou non le controle
     
     
     T_fin=toc(T_Debut); % temps du programme  
+    %%logs
     Data.vecteurFlagConvergence = vecteurFlagConvergence;
     Data.desired_trajectory = PP;
     Data.vecteur_incertitude_x = vecteur_incertitude_x;

@@ -33,6 +33,7 @@ weights = Data.vecteur_Poids(1:length(Particles),1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 robPoints=plot(Robot(1),Robot(2),'ob','MarkerSize',10,'LineWidth',2);
 robOr = plot([Robot(1),Robot(1)+1.5*cos(Robot(3))],[Robot(2),Robot(2)+1.5*sin(Robot(3))],'b','LineWidth',2)
+
 %particPoints=scatter(Particles(1,:),Particles(2,:),weights/norm(weights)*200,'r');
 plot(Data.desired_trajectory(1,:),Data.desired_trajectory(2,:),'*k')
 plot(Data.desired_trajectory(1,:),Data.desired_trajectory(2,:),'k')
@@ -80,23 +81,23 @@ AllOptions.Distribution=["distance","standard Deviation"];
 %US front for the eight front sensors and US mix is 1-0-1-0 one us activate
 %the other no...etc
 AllOptions.SensorsType=["laser","laser front","US","US front", "US mix"];
-AllOptions.NParticles=[250 500 750 1000];
+AllOptions.NParticles=[20];
 AllOptions.EndPoint=[0; 1; 0];
 AllOptions.NPp=1;
 AllOptions.MaxSpeed=0.4;
 AllOptions.NR = [8 16 32]; %number of rays
 AllOptions.plot = 0; %bool 1 plot 0 do not plot
 
-for i=1:1%18
-    for j=2:2%length(AllOptions.NParticles)
+for i=4%18
+    for j=1:1%length(AllOptions.NParticles)
         for k=2:2%length(AllOptions.NR)
-                for ii = 1:1%length(AllOptions.Distribution)
-                    for jj=2:2%length(AllOptions.Selection)
-                        for kk=1:5%length(AllOptions.SensorsType)
+                for ii =1:2%length(AllOptions.Distribution)
+                    for jj=1:1%length(AllOptions.Selection)
+                        for kk=1:1%length(AllOptions.SensorsType)
                             % change this before any plot
-                            iii = kk-1; 
-                            maxiteration = 100;%length(Data.vecteur_incertitude_x(1,:));
-                            iiimax = length(AllOptions.SensorsType);
+                            iii = ii-1; 
+                            maxiteration = 150;%length(Data.vecteur_incertitude_x(1,:));
+                            iiimax = 2;
                             Options.Likelihood = AllOptions.Likelihood(1);
                             Options.Selection = AllOptions.Selection(jj);
                             Options.Distribution = AllOptions.Distribution(ii);
@@ -110,25 +111,25 @@ for i=1:1%18
                             Options.EndPoint=AllOptions.EndPoint;
                             Options.PP = trajectories(i,:,:);
                             %lunch tests
-                            str = strcat(Options.Likelihood," ",Options.Selection," ",Options.Distribution," ",num2str(Options.NParticles)," ",Options.SensorsType," ",num2str(Options.NPP)," ",num2str(Options.MaxSpeed)," ",num2str(Options.NR), " trajectory22 number ",num2str(i))
+                            str = strcat(Options.Likelihood," ",Options.Selection," ",Options.Distribution," ",num2str(Options.NParticles)," ",Options.SensorsType," ",num2str(Options.NPP)," ",num2str(Options.MaxSpeed)," ",num2str(Options.NR), " trajectory3 number ",num2str(i), "test number",num2str(1))
                             str = regexprep(str,'[^0-9a-zA-Z]','_');
                             filename = strcat(str,".mat");
                             load(filename)
                             figure(1)
                             subplot(3,iiimax,1+iii)
-                            errorbar([],Data.vecteur_erreur(1,1:maxiteration),Data.vecteur_incertitude_x(1,1:maxiteration),Data.vecteur_incertitude_x(2,1:maxiteration),'-s','MarkerSize',2,'MarkerEdgeColor','b','MarkerFaceColor','b')
+                            errorbar([],Data.vecteur_erreur(1,:),Data.vecteur_incertitude_x(1,:),Data.vecteur_incertitude_x(2,: ),'-s','MarkerSize',2,'MarkerEdgeColor','b','MarkerFaceColor','b')
                             xlabel('iterations')
                             ylabel('x(m)')
                             str = strcat("errors and uncertainties for case: ",num2str(iii+1));
                             title(str)
                             hold on 
                             subplot(3,iiimax,1+iiimax+iii)
-                            errorbar([],Data.vecteur_erreur(2,1:maxiteration),Data.vecteur_incertitude_y(1,1:maxiteration),Data.vecteur_incertitude_y(2,1:maxiteration),'-s','MarkerSize',2,'MarkerEdgeColor','b','MarkerFaceColor','b')
+                            errorbar([],Data.vecteur_erreur(2,:),Data.vecteur_incertitude_y(1,:),Data.vecteur_incertitude_y(2,: ),'-s','MarkerSize',2,'MarkerEdgeColor','b','MarkerFaceColor','b')
                             xlabel('iterations')
                             ylabel('y(m)')
                             hold on 
                             subplot(3,iiimax,1+iiimax*2+iii)
-                            errorbar([],Data.vecteur_erreur(3,1:maxiteration),Data.vecteur_incertitude_theta(1,1:maxiteration),Data.vecteur_incertitude_theta(2,1:maxiteration),'-s','MarkerSize',2,'MarkerEdgeColor','b','MarkerFaceColor','b')
+                            errorbar([],Data.vecteur_erreur(3,:),Data.vecteur_incertitude_theta(1,:),Data.vecteur_incertitude_theta(2,: ),'-s','MarkerSize',2,'MarkerEdgeColor','b','MarkerFaceColor','b')
                             xlabel('iterations')
                             ylabel('theta(rad)')
                             hold on 
@@ -153,12 +154,12 @@ AllOptions.NPp=1;
 AllOptions.MaxSpeed=0.4;
 AllOptions.NR = [8 16 32]; %number of rays
 AllOptions.plot = 0; %bool 1 plot 0 do not plot
-for i=1:1%18
+for i=1:18%18
     for j=1:1%length(AllOptions.NParticles)
         for k=1:1%length(AllOptions.NR)
-                for ii = 1:1%length(AllOptions.Distribution)
+                for ii = 1:2%length(AllOptions.Distribution)
                     for jj=1:1%length(AllOptions.Selection)
-                        for kk=1:length(AllOptions.SensorsType)
+                        for kk=1:1%length(AllOptions.SensorsType)
                             % for each StudyCase
                             Options.Likelihood = AllOptions.Likelihood(1);
                             Options.Selection = AllOptions.Selection(jj);
@@ -173,28 +174,28 @@ for i=1:1%18
                             Options.EndPoint=AllOptions.EndPoint;
                             Options.PP = trajectories(i,:,:);
                             %lunch tests
-                            str = strcat(Options.Likelihood," ",Options.Selection," ",Options.Distribution," ",num2str(Options.NParticles)," ",Options.SensorsType," ",num2str(Options.NPP)," ",num2str(Options.MaxSpeed)," ",num2str(Options.NR), " trajectory2 number ",num2str(i))
+                            str = strcat(Options.Likelihood," ",Options.Selection," ",Options.Distribution," ",num2str(Options.NParticles)," ",Options.SensorsType," ",num2str(Options.NPP)," ",num2str(Options.MaxSpeed)," ",num2str(Options.NR), " trajectory3 number ",num2str(i), "test number",num2str(1))
                             str = regexprep(str,'[^0-9a-zA-Z]','_');
                             filename = strcat(str,".mat");
                             load(filename)
-                            iii = kk-1;
+                            iii = ii-1;
                             maxiteration = 50;%length(Data.vecteur_incertitude_x(1,:));
-                            iiimax = 5;
+                            iiimax = 2;
                             figure(1)
                             subplot(3,iiimax,1+iii)
-                            plot(Data.vecteur_erreur(1,1:maxiteration))
+                            plot(Data.vecteur_erreur(1,: ))
                             xlabel('iterations')
                             ylabel('x(m)')
                             str = strcat("errors for case: ",num2str(iii+1));
                             title(str)
                             hold on 
                             subplot(3,iiimax,1+iiimax+iii)
-                            plot(Data.vecteur_erreur(2,1:maxiteration))
+                            plot(Data.vecteur_erreur(2,: ))
                             xlabel('iterations')
                             ylabel('y(m)')
                             hold on 
                             subplot(3,iiimax,1+iiimax*2+iii)
-                            plot(Data.vecteur_erreur(3,1:maxiteration))
+                            plot(Data.vecteur_erreur(3,: ))
                             xlabel('iterations')
                             ylabel('theta(rad)')
                             hold on 
