@@ -4,6 +4,7 @@ function [ Xn, Yn, Dn ] = Add_mesurement_noise( Xrob, Yrob, Xmesure, Ymesure, Po
 
 Dmesure=sqrt((Xmesure-Xrob)^2+(Ymesure-Yrob)^2);
 
+
 if Bruit > 0
     if Portee < 5
         if Dmesure<1

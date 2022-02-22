@@ -33,6 +33,8 @@ hold on
 plot(GreyWall(:,1),GreyWall(:,2),'Color',GreyColor);
 hold on
 plot(NodetectWall(:,1),NodetectWall(:,2),'Color',NodetecColor);
-
+legend("good detection","intermidate detection","no detection")
+xlabel("x(m)");
+ylabel("y(m)");
 end
 

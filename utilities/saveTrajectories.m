@@ -13,7 +13,6 @@ load('bat5_Obstacles_detect_redone140220.mat');
 plot_Environement(Obstacles,10);
 
 %% save trajectories
-
 NPP = 1; 
 startX = [7 12 15 22 27.5 19 16 9 27];
 startY = [0.5 0.2 0.3 1.2 1.3 1.8 1.7 0.7 0.8];
@@ -28,9 +27,8 @@ for j = 1:2
         End = [endX(i); endY(i); pi];
         PP = trajectoryGenerator(NPP, Obstacles, Start, End, 10, 1);
         trajectories(i+(j-1)*length(startX),:,:) = PP;
-        pause(1)
+%         pause(0.1)
     end
 end
-filename = ('trajectories.mat')
-save(filename, 'trajectories');
-
+ filename = ('data\trajectories.mat')
+ save(filename,'trajectories');

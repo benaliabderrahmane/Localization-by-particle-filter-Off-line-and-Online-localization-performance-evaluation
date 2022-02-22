@@ -17,8 +17,7 @@ end
 Tab(k,:)=[IN(i+1),cmpt];
 for i=1:size(Tab,1)
 T=Tab(i,1);
-x_ref = 26.5747;
-y_ref = 5;
+
 
     xmin=Particles.x(T)-0.25;
     xmax=Particles.x(T)+0.25;
