@@ -4,7 +4,7 @@ function PP = trajectoryGenerator(N,Obstacles,Start,End,Fig,flag)
         error("start point isn't inside the box map")
     end
     if(~isinBoxmap(End(1),End(2),Obstacles))
-        error("start point isn't inside the box map")
+        error("End point isn't inside the box map")
     end
     
     PP = zeros(3,N+2); % N point + start + end
@@ -144,7 +144,7 @@ function PP = trajectoryGenerator(N,Obstacles,Start,End,Fig,flag)
         figure(Fig)
         plot(PP(1,:),PP(2,:),'*k')
         hold on
-        plot(PP(1,:),PP(2,:),'k')
+        plot(PP(1,:),PP(2,:))
     end
 end
           
