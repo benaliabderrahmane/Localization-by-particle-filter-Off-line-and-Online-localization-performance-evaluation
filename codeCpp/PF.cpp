@@ -49,62 +49,60 @@ std::vector<struct timespec> LogTime;
 std::vector<int> LogMode;
 
 int N = 600; //particle number (need to be an even number)
-int portee = 4; //portee of sensors
+double portee = 4; //portee of sensors
 
 vector<vector<double>> particles1; //particles in the first part of the map
 vector<vector<double>> particles2; //particles in the second part of the map
 vector<vector<double>> particles; //our particles (combination of both at first)
 
-particles1 = particleGenerator(26.5747,29.02,-0.269984,56,-M_PI,M_PI,N/2,Obstacles1);
-particles2 = particleGenerator(-5,26.5747,-0.269984,3,-M_PI,M_PI,N/2,Obstacles1);
-particles1.insert( particles1.end(), particles2.begin(), particles2.end());
-particles = particles1;
 
-vector<double> iNextGeneration(N,0);
+vector<double> iNextGeneration(N,0.0);
 vector<double> poids(N,1/N); //vector of N element all equal to 1/N
-
+double sumPoids;
 // for estimating laser readings of particles
-vector<double> rhoParticles(3,0);
-vector<double> ximp;
-vector<double> yimp;
-int NR = 32;//number of rays 
+int NR = 16;//number of rays
+vector<double> rhoParticles(3,0.0);
+vector<double> ximp(NR);
+vector<double> yimp(NR);
 
 vector<double> theta=linspace(-M_PI, M_PI, NR+1);
 theta.pop_back(); //delete last element as it's the same as the first one
 for(int i=0; i!=theta.size(); i++)
 {
   // round angles to the closest angle of the 1022 rayes
-  theta[i] = round(theta[i]*(1022/(2*M_PI)))*(2*M_PI/1022);
+  theta[i] = (round(theta[i]*(1022/(2*M_PI)))*(2*M_PI/1022));
+  theta[i] = wrapAngle(theta[i]);
 }
-vector<int> indexes; 
+vector<int> indexes;
 
 bool firstIteration = true; //bool if it's first iteration of the simulation
-bool flagConvergance = false; // flag for convergance 
-bool flagRedistribution = false; // flag for redistribution 
+bool flagConvergance = false; // flag for convergance
+bool flagRedistribution = false; // flag for redistribution
 
 euclid_position tempParticle; //temporary particle to be used in control part
 
 vector<double> rhoRobot(NR,0); //get robot measurement to be used in likelihood
 
-double wsd [3] = {0,0,0}; //weighted standard deviation for x, y and theta 
-double meanX = 0; // mean of all particles x position
-double meanY = 0; // mean of all particles y position
-double meanTheta = 0; // mean of all particles theta position
+double wsd [3] = {0,0,0}; //weighted standard deviation for x, y and theta
+double meanX = 0.0; // mean of all particles x position
+double meanY = 0.0; // mean of all particles y position
+double meanTheta = 0.0; // mean of all particles theta position
 
-double poseEstimate[3]={0,0,0}; //estimated position of the robot
+double poseEstimate[3]={0.0,0.0,0.0}; //estimated position of the robot
 
-double ssl=0; //right and left wheel displacement
-double ssr=0;
+double ssl=0.0; //right and left wheel displacement
+double ssr=0.0;
 /**********Get MAP file***************/
-//  std::string mapfolder = PID_PATH("PF_Files");
-//  std::cout<<"Map folder : "<<mapfolder<<std::endl;
-	string fname = "obstacles.csv";
+  std::string mapfolder = PID_PATH("PF_Files/obstacles.csv");
+  std::cout<<"Map folder : "<<mapfolder<<std::endl;
+	string fname = mapfolder;//"obstacles.csv";
 	Obstacles Obstacles1;
 	vector<vector<string>> obstacles;
 	vector<string> row;
 	string line, data;
 
 	fstream file (fname, ios::in);
+  std::cout << "PF: Lecture Carte---" << '\n';
 	if(file.is_open())
 	{
 		while(getline(file, line))
@@ -119,6 +117,10 @@ double ssr=0;
 	}
 	else
 	cout<<"Could not open the file\n";
+
+
+  std::cout << "PF: Carte Lue---" << '\n';
+
 	for(int i=0;i<obstacles.size();i++)
 	{
 		Obstacles1.posVertex[i][0][0] = stod(obstacles[i][0]);
@@ -165,71 +167,124 @@ double ssr=0;
       savefile.open(filename,std::ios::out);
     }
 
+    std::cout << "PF Mode : Save file ok \n";
+    /***************MAIN LOOP*********************/
+    std::cout << "PF Mode : Start Particules \n";
+    particles1 = particleGenerator(26.5747,29.02,-0.269984,56,-M_PI,M_PI,N/2,Obstacles1,GrandObstacle);
+    particles2 = particleGenerator(-5,26.5747,-0.269984,3,-M_PI,M_PI,N/2,Obstacles1,GrandObstacle);
+    particles1.insert( particles1.end(), particles2.begin(), particles2.end());
+    particles = particles1;
+    std::cout << "PF Mode : Particules_rdy \n";
+    odom.Get(odoposP3D_Old);
+
     /**********Ending INIT Thread*************/
     LauncheTime=Mode.Get(presentMode);
     Mode.Set(PF_IDLEMODE,LauncheTime);
     presentMode=PF_IDLEMODE;
     Las2Old=LauncheTime;
     Las1Old=LauncheTime;
-    odom.Get(odoposP3D_Old);
-    /***************MAIN LOOP*********************/
+
     Running=1;
     while(Running){
         Mode.Get(presentMode);
         clock_gettime(CLOCK_REALTIME, &StartTime);
+
+        if(verbose){
+          std::cout << "PF Mode : "<< presentMode << '\n';
+        }
+
         switch (presentMode) {
+          case PF_HALTMODE:
+            Running=0;
+            break;
           case PF_IDLEMODE:
             break;
           case PF_INITMODE:
           case PF_RUNMODE:
             /*******************UPDATE SENSORS Reading (Odo, Las1+Las2)***********************/
+            if(verbose){
+              std::cout << "PF Mode : Start PF"<< '\n';
+            }
             Todo=odom.Get(odoposP3D);
+            std::cout << (Todo.tv_nsec+(Todo.tv_sec*1000000000)) << "\n";
             Las2Time=las2.Get(relevel2);
             Las1Time=las1.Get(relevel1);
             if (isafter(Las2Time,Las2Old))
             {
-              OldLas2=format_Telemetre(relevel2.data,relevel2.last_lenght,0.03,0,M_PI);
+              //OldLas2=format_Telemetre(relevel2.data,relevel2.last_lenght,0.03,0,M_PI);
+              OldLas2=format_Telemetre(relevel2.data,relevel2.last_lenght,0.0,0.0,M_PI);
               Las2Old=Las2Time;
             }
             if (isafter(Las1Time,Las1Old))
             {
-              OldLas1=format_Telemetre(relevel1.data,relevel1.last_lenght,0.03,0,0.7031*M_PI/180);
+//              OldLas1=format_Telemetre(relevel1.data,relevel1.last_lenght,0.03,0,0.7031*M_PI/180);
+              OldLas1=format_Telemetre(relevel1.data,relevel1.last_lenght,0.0,0.0,0.0);
               Las1Old=Las1Time;
             }
 
             Telemetries.clear();
-            if(isafter(Las2Old,LauncheTime) && !(enoughttimepassed(StartTime, Las2Old, 1000))){
+//            if(isafter(Las2Old,LauncheTime) && !(enoughttimepassed(StartTime, Las2Old, 1000))){
               Telemetries.insert(Telemetries.end(),OldLas2.begin(),OldLas2.end());
-            }
-            if(isafter(Las1Old,LauncheTime) &&  !(enoughttimepassed(StartTime, Las1Old, 1000))){
+//            }
+//            if(isafter(Las1Old,LauncheTime) &&  !(enoughttimepassed(StartTime, Las1Old, 1000))){
               Telemetries.insert(Telemetries.end(),OldLas1.begin(),OldLas1.end());
+//            }
+            if(verbose){
+              std::cout << "PF Mode : Sensors read"<< '\n';
             }
-
-
 
             if (firstIteration)
             {
               //get indexes of Telemetries to use in simulation
               for (int i=0; i<NR; i++)
               {
+                double min = 1000;
                 for(int j=0; j<Telemetries.size();j++)
                 {
-                  if (abs(theta[i]-Telemetries[j].dir.theta)<0.001)
+                  if (abs(theta[i]-Telemetries[j].dir.theta)<0.02)
                     {
                       indexes.push_back(j);
+                      break;
+                    }/*
+                    else
+                    {
+                      if (abs(theta[i]-Telemetries[j].dir.theta)<min)
+                      min = abs(theta[i]-Telemetries[j].dir.theta);
                     }
+                    if (j == Telemetries.size()-1)
+                    {
+                    std::cout << "PF : Angle non trouvee : "<< theta[i] << '\n';
+                    std::cout << "PF : minimum trouvé : "<< min << '\n';
+                    for(int k=0; k<Telemetries.size();k++)
+                    {
+                      if (abs(theta[i]-Telemetries[k].dir.theta)<0.2)
+                        {
+                        std::cout << "PF : Val proche : "<< Telemetries[k].dir.theta<< " - i = "<< k  << '\n';
+                        }
+                    }
+                  }*/
                 }
+
               }
               firstIteration = false;
             }
 
+
+
+            if(verbose){
+              std::cout << "PF Mode : 1er itération ok"<< '\n';
+            }
             /*******************************************************/
             /******************PF start*****************************/
             /*******************************************************/
             //control of particles:
             Recomput_Weeldist(odoposP3D_Old,odoposP3D,ssl,ssr);
+            if(verbose){
+              std::cout << "PF Mode : weeldist ok"<< '\n';
+//              std::cout << "PF Mode : weeldist ok"<< '\n';
+            }
             odoposP3D_Old = odoposP3D;
-            for (int j=0;j<=N;j++)
+            for (int j=0;j<N;j++)
             {
               //tempParticle is of type euclid_position
               tempParticle.pos.x = particles[j][0];
@@ -240,29 +295,56 @@ double ssr=0;
               particles[j][1]= tempParticle.pos.y;
               particles[j][2]= tempParticle.dir.theta;
             }
-            
-            for(int j=0; j<indexes.size();j++)
-            {
-              //get robot measurement to be used in likelihood
-              rhoRobot[j] = Telemetries[indexes[j]].dist;
+
+            if(verbose){
+              std::cout << "PF Mode : Particules simulated"<< '\n';
             }
-            
+            if(verbose){
+              std::cout << "PF Mode : Lecture capteurs faite"<< '\n';
+            }
 
             //start measurement for particles:
-            for (int k=0;k<=N;k++)
+            int out=0;
+            for (int k=0;k<N;k++)
             {
-              Mesure_act(Portee,theta,obstacle,distDetect,particles[k][0],particles[k][0],particles[k][0],rhoParticles,ximp,yimp);
+              if(verbose){
+                std::cout << "PF Mode : Mesure simulee particule "<< k << '\n';
+              }
+              Mesure_act(portee,theta,GrandObstacle,distDetect,particles[k][0],particles[k][1],particles[k][2],rhoParticles,ximp,yimp);
+
               //calculate likelihood:
+              if(isInBoxMax(particles[k][0],particles[k][1],Obstacles1,GrandObstacle))
+              {
               poids[k] = likelihood(rhoRobot,rhoParticles);
+
+            }
+            else{
+              out++;
+              poids[k]=0;
             }
 
-            //calculate the estimated position:
-            auto sumPoids = accumulate(poids.begin(), poids.end(), 0);
-            poseEstimate[0] = 0;
-            poseEstimate[1] = 0;
-            poseEstimate[2] = 0;
 
-            for (int i=0;i<=N;i++)
+//              if(verbose){
+//                std::cout << "PF Mode : Poid simulee particule "<< poids[k] << '\n';
+//              }
+            }
+
+
+
+            if(verbose){
+              std::cout << "PF Mode : Nombre de particule paume :" << out<< '\n';
+            }
+
+            if(verbose){
+              std::cout << "PF Mode : Poids fait"<< '\n';
+            }
+            //calculate the estimated position:
+            sumPoids = accumulate(poids.begin(), poids.end(), 0.0);
+            poseEstimate[0] = 0.0;
+            poseEstimate[1] = 0.0;
+            poseEstimate[2] = 0.0;
+
+            for (int i=0;i<N;i++)
             {
                 poseEstimate[0] = poseEstimate[0]+particles[i][0]*poids[i];
                 poseEstimate[1] = poseEstimate[1]+particles[i][1]*poids[i];
@@ -272,13 +354,19 @@ double ssr=0;
             poseEstimate[1] = poseEstimate[1]/sumPoids;
             poseEstimate[2] = poseEstimate[2]/sumPoids;
 
+            if(verbose){
+              std::cout << "PF Mode : Estime fait"<< '\n';
+            }
+
             Val_estime.pos.x = poseEstimate[0];
             Val_estime.pos.y = poseEstimate[1];
             Val_estime.dir.theta = poseEstimate[2];
             clock_gettime(CLOCK_REALTIME, &TimeEstime);
 
 
-
+            meanX = 0.0;
+            meanY = 0.0;
+            meanTheta = 0.0;
             // check for convergance
             for (int ii = 0; ii<N; ii++)
             {
@@ -287,20 +375,28 @@ double ssr=0;
                 meanTheta += particles[ii][2];
             }
 
-            meanX /= N;
-            meanY /= N;
-            meanTheta /= N;
+            meanX /= N*1.0;
+            meanY /= N*1.0;
+            meanTheta /= N*1.0;
+
+            if(verbose){
+              std::cout << "PF Mode : Means"<< '\n';
+            }
 
             for (int ii = 0; ii<N; ii++)
             {
-                wsd[0] += poids[ii]*(particles[ii][0]-meanX)*(particles[ii][0]-meanX); // we didn't use pow because particles[ii][0] is a vector of double not a double
-                wsd[1] += poids[ii]*(particles[ii][1]-meanY)*(particles[ii][1]-meanY);
-                wsd[2] += poids[ii]*(particles[ii][2]-meanTheta)*(particles[ii][2]-meanTheta);
+                wsd[0] += poids[ii]*(particles[ii][0]-meanX)*(particles[ii][0]-meanX)*1.0; // we didn't use pow because particles[ii][0] is a vector of double not a double
+                wsd[1] += poids[ii]*(particles[ii][1]-meanY)*(particles[ii][1]-meanY)*1.0;
+                wsd[2] += poids[ii]*(particles[ii][2]-meanTheta)*(particles[ii][2]-meanTheta)*1.0;
             }
 
-            wsd[0] = sqrt(wsd[0]/((N-1)/N*sumPoids));
-            wsd[1] = sqrt(wsd[1]/((N-1)/N*sumPoids));
-            wsd[2] = sqrt(wsd[2]/((N-1)/N*sumPoids));
+            wsd[0] = sqrt(wsd[0]/((N-1)/N*sumPoids))*1.0;
+            wsd[1] = sqrt(wsd[1]/((N-1)/N*sumPoids))*1.0;
+            wsd[2] = sqrt(wsd[2]/((N-1)/N*sumPoids))*1.0;
+
+            if(verbose){
+              std::cout << "PF Mode : Ecart type ok"<< '\n';
+            }
 
             if (wsd[0]<2 && wsd[1]<2 && wsd[2]<0.5)
             {
@@ -323,25 +419,42 @@ double ssr=0;
             }
 
 
+            if(verbose){
+              std::cout << "PF Mode : Eclate flag ok"<< '\n';
+            }
+            flagRedistribution=false;
+
+            iNextGeneration = selection(poids,N);
+            if(iNextGeneration.size()==0){//Totalement paume
+              flagRedistribution=true;
+            }
+              if(verbose){
+                std::cout << "PF Mode : Selec ok"<< '\n';
+              }
+
+
+
 
             if (flagRedistribution)
             {
               //redistribute particels
-              particles1 = particleGenerator(26.5747,29.02,-0.269984,56,-M_PI,M_PI,N/2,Obstacles1);
-              particles2 = particleGenerator(-5,26.5747,-0.269984,3,-M_PI,M_PI,N/2,Obstacles1);
+              particles1 = particleGenerator(26.5747,29.02,-0.269984,56,-M_PI,M_PI,N/2,Obstacles1,GrandObstacle);
+              particles2 = particleGenerator(-5,26.5747,-0.269984,3,-M_PI,M_PI,N/2,Obstacles1,GrandObstacle);
               particles1.insert( particles1.end(), particles2.begin(), particles2.end() );
               particles = particles1;
-              for (int k=0;k<=N;k++)
+              for (int k=0;k<N;k++)
               {
                   poids[k] = 1/N;
               }
             }
             else
             {
-              //selection:
-              iNextGeneration = selection(poids,N);
-              //get the new particles 
-              particles = testInext(iNextGeneration, Particles, N, Obstacles1);
+              //get the new particles
+              cout << "nombre de particule a regenerer " << iNextGeneration.size() << endl;
+              particles = testInext(iNextGeneration, particles, Obstacles1, GrandObstacle);
+              if(verbose){
+                std::cout << "PF Mode : test ok"<< '\n';
+              }
             }
 
             if (presentMode == PF_RUNMODE && flagConvergance)
@@ -354,7 +467,27 @@ double ssr=0;
             /*******************************************************/
             break;
         }
+
+        if(verbose){
+          std::cout << "PF_Will log \n";
+
+        }
         if(Logging){
+
+          std::cout << "PF logging now \n";
+          std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++ \n";
+          std::cout << poseEstimate[0] << "\n";
+          std::cout << poseEstimate[1] << "\n";
+          std::cout << poseEstimate[2] << "\n";
+          std::cout  << odoposP3D.pos.x << "\n";
+          std::cout  << odoposP3D.pos.y << "\n";
+          std::cout  << odoposP3D.dir.theta << "\n";
+          std::cout << wsd[0] << "\n";
+          std::cout << wsd[1] << "\n";
+          std::cout << wsd[2] << "\n";
+          std::cout  << *max_element(poids.begin(), poids.end()) << "\n"; //return the max wheight
+          std::cout  << sumPoids << "\n"; //return sum of the wheights
+          std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++ \n";
           clock_gettime(CLOCK_REALTIME, &TimeLog);
           /***************Logging**************/
           savefile << (StartTime.tv_nsec+(StartTime.tv_sec*1000000000)) << "," << presentMode << ",";
@@ -363,19 +496,19 @@ double ssr=0;
           savefile << (Las2Old.tv_nsec+(Las2Old.tv_sec*1000000000)) << ",";
           savefile << (Todo.tv_nsec+(Todo.tv_sec*1000000000)) << ",";
           savefile << (TimeEstime.tv_nsec+(TimeEstime.tv_sec*1000000000)) << ",";
-          savefile << odom.pos.x << ",";
-          savefile << odom.pos.y << ",";
-          savefile << odom.pos.theta << ",";
+          savefile << odoposP3D.pos.x << ",";
+          savefile << odoposP3D.pos.y << ",";
+          savefile << odoposP3D.dir.theta << ",";
           savefile << poseEstimate[0] << ",";
           savefile << poseEstimate[1] << ",";
           savefile << poseEstimate[2] << ",";
           savefile << wsd[0] << ","; //wheighted standard deviation for x
           savefile << wsd[1] << ","; //wheighted standard deviation for y
           savefile << wsd[2] << ","; //wheighted standard deviation for theta
-          savefile << *max_element(poids.begin(), poids.end()) << ";"; //return the max wheight 
-          savefile << sumPoids << ","; //return sum of the wheights 
+          savefile << *max_element(poids.begin(), poids.end()) << ","; //return the max wheight
+          savefile << sumPoids << ","; //return sum of the wheights
           savefile << N << ","; //return number of particles
-          savefile << NR << ","; //return number of rayes 
+          savefile << NR << ","; //return number of rayes
           savefile << flagConvergance << ",";
           savefile << flagRedistribution << ",";
 
@@ -394,5 +527,6 @@ double ssr=0;
     /****************Closing thread***************/
     if(Logging){
       savefile.close();
+      std::cout << "PF log file closed at : " << filename << '\n';
     }
 }

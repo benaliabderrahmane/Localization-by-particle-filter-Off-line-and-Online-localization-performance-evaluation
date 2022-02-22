@@ -1,7 +1,7 @@
 #include "functions.h"
 
 
-bool isInBoxMax(double x,double y,Obstacles Obstacles1)
+bool isInBoxMax(double x,double y,Obstacles Obstacles1,vector <vector<double>> GrandObstacle)
 {
     // set random engine
     default_random_engine generator{static_cast<long unsigned int>(time(0))};
@@ -10,48 +10,35 @@ bool isInBoxMax(double x,double y,Obstacles Obstacles1)
     // flag to be returned
     bool flag = false;
 
-    //vector<vector<double>> grandObstacle(217*3, std::vector<double>(2, 0));
-    vector <vector<double>> GrandObstacle;
-	vector <double> distDetect;
-	for (int i = 0; i<217;i++)
-	{
-		vector<double> temp;
-		temp.push_back(Obstacles1.posVertex[i][0][0]);
-		temp.push_back(Obstacles1.posVertex[i][0][1]);
-		GrandObstacle.push_back(temp);
-		vector<double> temp1;
-		temp1.push_back(Obstacles1.posVertex[i][1][0]);
-		temp1.push_back(Obstacles1.posVertex[i][1][1]);
-		GrandObstacle.push_back(temp1);
-
-		distDetect.push_back(Obstacles1.distDetect[i]);
-
-	}
 
     if (!isnan(x) && !isnan(y))
     {
-        double x1[7];
-        double y1[7];
+        double x1;
+        double y1;
         int success = 0;
         for(int j=0; j<7; j++)
         {
             double h = distribution(generator)*2*M_PI-M_PI;
-            x1[j] = x+99999+cos(h);
-            y1[j] = y+99999+sin(h);
+//            std::cout << "In box : H="<< h << '\n';
+            x1 = x+99999*cos(h);
+            y1 = y+99999*sin(h);
 
 
-            for (int kk=0; kk<7; kk++)
-            {
-                auto uu = Intersection(x,x1[kk],y,y1[kk],GrandObstacle);
+//            for (int kk=0; kk<7; kk++)
+//            {
+                auto uu = Intersection(x,x1,y,y1,GrandObstacle);
+
+//                std::cout << "In box : NINTER="<< uu.size() << '\n';
                 if (uu.empty())
                 {
                     success = 0;
                     break;
                 }
+//                std::cout << "In box : modulo="<< fmod(uu.size(),2) << '\n';
                 if (fmod(uu.size(),2)==1)
                 //we may be inside something
                 success++;
-            }
+//            }
         }
         if (success>3)
         {
@@ -61,7 +48,7 @@ bool isInBoxMax(double x,double y,Obstacles Obstacles1)
     return flag;
 }
 
-vector<vector<double>> particleGenerator(double xMin,double xMax,double yMin, double yMax, double thetaMin, double thetaMax, int N,Obstacles obstacle)
+vector<vector<double>> particleGenerator(double xMin,double xMax,double yMin, double yMax, double thetaMin, double thetaMax, int N,Obstacles obstacle,vector <vector<double>> GrandObstacle)
 {
     // set random engine
     default_random_engine generator{static_cast<long unsigned int>(time(0))};
@@ -76,11 +63,14 @@ vector<vector<double>> particleGenerator(double xMin,double xMax,double yMin, do
         p[0] = (xMax-xMin)*distribution(generator)+xMin;//particle i x coordinate
         p[1] = (yMax-yMin)*distribution(generator)+yMin;//particle i y coordinate
         p[2] = (thetaMax-thetaMin)*distribution(generator)+thetaMin;//particle i theta coordinate
-        bool test = isInBoxMax(p[0],p[1],obstacle);
+        bool test = isInBoxMax(p[0],p[1],obstacle,GrandObstacle);
         if (test)
         {
             particles.push_back(p);
+//            std::cout << "PF: Cree une particule valide!! pos---" << '\n';
             i++;
+        }else{
+          std::cout << "Particule invalide a la position : "<< p[0]<< ", " << p[1]<<", " << p[2]<<", " << '\n';
         }
     }
     return particles;
@@ -89,17 +79,17 @@ vector<vector<double>> particleGenerator(double xMin,double xMax,double yMin, do
 double wrapAngle(double a)
 {
 	if (a > M_PI){
-		a = a -2*M_PI;
+		a = a -2.0*M_PI;
 	}
 	else if(a < -M_PI){
-		a = a + 2*M_PI;
+		a = a + 2.0*M_PI;
 	}
 	return a;
 }
 
 double likelihood(vector<double> rho, vector<double> rho_particles)
 {
-	double var = 0;
+	double var = 0.0;
 	double size = rho.size();
 	vector<double> diff(size);
 	vector<double> E(size),ee(size);
@@ -131,22 +121,26 @@ int closest(vector<double> const& vec, double value)
     return distance(vec.begin(), it);
 }
 
-vector<int> selection(vector<double> weights,int N)
+vector<double> selection(vector<double> weights,int N)
 {
 //SELECTION of next generation particles
 //(used in main function ParticleFilter)
-
+vector<double> iNextGeneration;
 
         //calculate the sum of the vector weights
         double sum;
-        sum = std::accumulate(weights.begin(), weights.end(), 0);
+        sum = std::accumulate(weights.begin(), weights.end(), 0.0);
+        if(sum==0){
+          return iNextGeneration;
+        }
 
         //calculate the normalized Cumulative sum of the vector weights
         vector<double> NCS(N,0);
         int j = 0;
         for(vector<double>::iterator i = begin(weights); i != end(weights); ++i)
         {
-            NCS[j]=accumulate(weights.begin(), i, weights[0])/sum;
+            NCS[j]=accumulate(weights.begin(), i, 0.0)/sum;
+//            NCS[j]=accumulate(weights.begin(), i, weights[0])/sum;
             j++;
         }
 
@@ -158,10 +152,18 @@ vector<int> selection(vector<double> weights,int N)
             iSelect.push_back(distribution(generator));
 
         // interpolate to find the particle with nearest weight to the random generated weight and return its index
-        vector<int> iNextGeneration;
-        for (int i = 1; i<=N;i++)
-            iNextGeneration.push_back(closest(NCS, iSelect[i]));
 
+        int itmp;
+        for (int i = 1; i<=N;i++){
+//            iNextGeneration.push_back(closest(NCS, iSelect[i]));
+            itmp=closest(NCS, iSelect[i]);
+            while(itmp>=0&&weights[itmp]==0)
+              itmp--;
+            if(itmp<0)
+              while(itmp<weights.size()&&weights[itmp]==0)
+                itmp++;
+            iNextGeneration.push_back(itmp);
+        }
 
             /*
         //calculate the sum of the vector weights
@@ -213,7 +215,7 @@ double coefficients(double sd[], int N)
         }
         else
         {
-            k=0.8
+            k=0.8;
         }
     }
     else
@@ -223,17 +225,18 @@ double coefficients(double sd[], int N)
     return k;
 }
 
-vector<vector<double>> testInext(vector<double> iNextGeneration, vector<vector<double>> Particles, int &N, Obstacles Obstacles1)
+vector<vector<double>> testInext(vector<double> iNextGeneration, vector<vector<double>> Particles,  Obstacles Obstacles1,vector<vector<double>> GrandObstacle)
 {
     vector<vector<double>>  Particles_new;
     vector<vector<double>>  Particles_IN;
     sort(iNextGeneration.begin(), iNextGeneration.end());
-    N = 0;
+//    int N = 0;
     int cmpt=1;
     vector<vector<double>> Tab;
     vector<double> temp;
     double xmin, xmax, ymin, ymax, thetamin, thetamax;
 
+    std::cout << "testInext : Inits" << '\n';
     for (int i=0;i<(iNextGeneration.size()-1);i++)
     {
         if (iNextGeneration[i]==iNextGeneration[i+1])
@@ -249,24 +252,30 @@ vector<vector<double>> testInext(vector<double> iNextGeneration, vector<vector<d
             cmpt = 1;
         }
     }
+    std::cout << "testInext : Inits2" << '\n';
     temp.push_back(iNextGeneration[iNextGeneration.size()-1]);
     temp.push_back(cmpt);
     Tab.push_back(temp);
+    std::cout << "testInext : Inits3" << '\n';
     for (int i=0;i<Tab.size();i++)
     {
         xmin = Particles[Tab[i][0]][0]-0.25;
-        xmax = Particles[Tab[i][0]][0]-0.25;
-        ymin = Particles[Tab[i][1]][0]-0.25;
-        ymax = Particles[Tab[i][1]][0]-0.25;
-        thetamin = Particles[Tab[i][1]][0]-M_PI/8;
-        thetamax = Particles[Tab[i][1]][0]+M_PI/8;  
-        Particles_IN =particleGenerator(xmin,xmax,ymin,ymax,thetamin,thetamax,Tab[i][1],Obstacles1);
+        xmax = Particles[Tab[i][0]][0]+0.25;
+        ymin = Particles[Tab[i][0]][1]-0.25;
+        ymax = Particles[Tab[i][0]][1]+0.25;
+        thetamin = Particles[Tab[i][0]][2]-M_PI/8;
+        thetamax = Particles[Tab[i][0]][2]+M_PI/8;
+//        std::cout << "testInext : Will generate" << '\n';
+        Particles_IN =particleGenerator(xmin,xmax,ymin,ymax,thetamin,thetamax,Tab[i][1],Obstacles1,GrandObstacle);
+//        std::cout << "testInext : generate ok" << '\n';
         Particles_new.insert( Particles_new.end(), Particles_IN.begin(), Particles_IN.end() );
-        N += Tab[i][1];
+//        std::cout << "testInext : Particules added" << '\n';
+//        N += Tab[i][1];
     }
+    std::cout << "Particles_new size" << Particles_new.size() << '\n';
     return Particles_new;
 }
-
+/*
 N_new=round(coefficients(Particles)*Tab(i,2));
 Particles_new=[Particles_new,Particles_generator(xmin,xmax,ymin,ymax,theta_min,theta_max,N_new,Obstacles)];
 NN=NN+N_new;
@@ -275,7 +284,7 @@ P_new.x=Particles_new(1,:);
 P_new.y=Particles_new(2,:);
 P_new.theta=Particles_new(3,:);
 end
-
+*/
 
 void check_redistribution(double PoseEstime[], double OldParticles[], double Robot[], double OldRobot[], double SdX, double SdY, double SdTheta, bool &flag1, bool &flag2)
 {
@@ -343,7 +352,7 @@ vector<pdd> Intersection(double x1, double x2, double y1, double y2, vector<vect
 {
     //cout << x1 << "\t" << x2 << "\t" << y1 << "\t" << y2 << endl;
     int i,j;
-	pdd s1 = make_pair(x1, y1);
+	  pdd s1 = make_pair(x1, y1);
     pdd s2 = make_pair(x2, y2);
     //cout << "seg points:\t";
     //cout << "(" << s1.first << ", " << s1.second << ")" << "\t" << "(" << s2.first << ", " << s2.second << ")" << endl;
@@ -362,6 +371,7 @@ vector<pdd> Intersection(double x1, double x2, double y1, double y2, vector<vect
         intersection = Intersection_seg(s1, s2, m1, m2);
         //cout << "intersection :\t" << endl;
         //cout<<"------------------------------------"<<endl;
+        if(!isnan(intersection.first))
         v.push_back(intersection);
         //cout << v[i].first << "\t" << v[i].second << endl;
 	}
@@ -384,12 +394,12 @@ vector<double> &DIST, vector<double> &ximp, vector<double> &yimp)
 		x1[i]= x + Portee*cos(h[i]);
 		y1[i]= y + Portee*sin(h[i]); }
 
-	for(int i=0; i!=angles.size(); i++){
-		DIST[i] = Portee;
-		ximp[i] = 0;
-		yimp[i] = 0;}
 
 	for(int kk=0; kk!= x1.size(); kk++){
+  		DIST[kk] = Portee;
+      ximp[kk] = x1[kk];
+      yimp[kk] = y1[kk];
+
 		v = Intersection(x, x1[kk], y, y1[kk], obstacle);
 		//cout << v[0].first;
 		//cout << endl << v[0].second;
@@ -398,8 +408,8 @@ vector<double> &DIST, vector<double> &ximp, vector<double> &yimp)
 			if (!isnan(v[i].first) && !isnan(v[i].second))
 			{d.push_back(pow((v[i].first-x), 2) + pow((v[i].second-y), 2));}
 			else
-			{d.push_back(Portee*Portee);}}
-
+			{d.push_back(Portee*Portee);}
+    }
 		if(d.size()!= 0)
 		{
 			double  a = *std::min_element(d.begin(), d.end()); //min
@@ -413,10 +423,8 @@ vector<double> &DIST, vector<double> &ximp, vector<double> &yimp)
 			}*/
 			if(!isnan(v[b].first) && !isnan(v[b].second))
 			{	ximp[kk] = v[b].first;
-				yimp[kk] = v[b].second;}
-			else{
-				ximp[kk] = x1[kk];
-			    yimp[kk] = y1[kk];}
+				yimp[kk] = v[b].second;
+      }
 		}
 	}
 }
@@ -426,11 +434,12 @@ void Mesure_act(double Portee, vector<double> theta, vector<vector<double>> obst
 vector <double> distDetect, double xROB,double yROB,double thetaROB,
 vector<double> &rho, vector<double> &ximp, vector<double> &yimp)
 {
+  /*
 	for(int i=0; i!=theta.size(); i++)
 	{
 		theta[i] = round(theta[i]*(1022/(2*M_PI)))*(2*M_PI/1022);
 	}
-
+  */
 	if(obstacle.size()==0){
 		for(int i; i!=theta.size();i++){
 			rho[i] = NAN;
@@ -439,7 +448,7 @@ vector<double> &rho, vector<double> &ximp, vector<double> &yimp)
 		}
 	}
 	else{
-		uspatch_act(Portee, theta, obstacle, distDetect, xROB, yROB, thetaROB, rho, ximp, yimp);
+		 uspatch_act(Portee, theta, obstacle, distDetect, xROB, yROB, thetaROB, rho, ximp, yimp);
 	}
 
 	for(int i=0; i<rho.size();i++){
@@ -455,7 +464,7 @@ std::vector<double> linspace(double start, double end, int num)
 
 
   if (num == 0) { return linspaced; }
-  if (num == 1) 
+  if (num == 1)
     {
       linspaced.push_back(start);
       return linspaced;

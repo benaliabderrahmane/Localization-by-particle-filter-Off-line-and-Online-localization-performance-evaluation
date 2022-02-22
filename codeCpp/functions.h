@@ -28,15 +28,15 @@ struct Obstacles {
 };
 
 
-bool isInBoxMax(double x,double y,Obstacles obstacle);
-vector<vector<double>> particleGenerator(double xMin,double xMax,double yMin, double yMax, double thetaMin, double thetaMax, int N,Obstacles obstacle);
+bool isInBoxMax(double x,double y,Obstacles obstacle,vector <vector<double>> GrandObstacle);
+vector<vector<double>> particleGenerator(double xMin,double xMax,double yMin, double yMax, double thetaMin, double thetaMax, int N,Obstacles obstacle,vector <vector<double>> GrandObstacle);
 double wrapAngle(double a);
 double likelihood(vector<double> rho, vector<double> rho_particles);
 int closest(vector<double> const& vec, double value);
-vector<int> selection(vector<double> weights,int N);
+vector<double> selection(vector<double> weights,int N);
 double var(vector<double> v);
 double coefficients(double sd[],int N);
-vector<vector<double>> testInext(vector<double> iNextGeneration, vector<vector<double>> Particles, int &N, Obstacles Obstacles1);
+vector<vector<double>> testInext(vector<double> iNextGeneration, vector<vector<double>> Particles,  Obstacles Obstacles1, vector <vector<double>> GrandObstacle);
 void check_redistribution(double PoseEstime[], double OldParticles[], double Robot[], double OldRobot[], double SdX, double SdY, double SdTheta, bool &flag1, bool &flag2);
 void displayPoint(pdd P);
 pdd Intersection_seg(pdd A, pdd B, pdd C, pdd D);
