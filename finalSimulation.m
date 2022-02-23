@@ -20,9 +20,9 @@ load('GrandObstacle.mat')
 
 %generate trajectory
 
-trajectory = [11,21;1,1;pi,pi];
+trajectory = [27.5,27.5;30,10;-pi/2,-pi/2];
 
-for m=3:3
+for m=1:1
     %generate particles 
     particles1=Particles_generator(26.5747,29.02,-0.269984,56,-pi,pi,300,Obstacles);
     particles2=Particles_generator(-5,26.5747,-0.269984,3,-pi,pi,300,Obstacles);
@@ -47,16 +47,16 @@ for m=3:3
     %% 
     %add code to save data here
     filename = strcat("data\",str,".mat");
-    if isfile(filename)
+     if isfile(filename)
         %check if we already tested this case no need to repeat it 
         load(filename);
         %break 
-    else
+     else
         %lunch tests
         Data = ParticleFilter(Options);
         save(filename,"Data")
         disp('save, end case');
-    end
+     end
 end
 
 figure(1)
@@ -166,12 +166,58 @@ plot(Data.desired_trajectory(1,:),Data.desired_trajectory(2,:),'k')
 particlePoints = plot(Data.vecteur_particles(1,1:600),Data.vecteur_particles(2,1:600),'.r');
 legend("good detection","intermidate detection","no detection")
 k = 600;
+
+%% Initialize video
+myVideo = VideoWriter('simulationVideoForParticles'); %open video file
+myVideo.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
+open(myVideo)
+set(gcf, 'Position', get(0, 'Screensize'));
+%% Plot in a loop and grab frames
 for i=2:length(Data.vecteur_Robot)
-    pause(0.1)
     
+    pause(0.01)
+    frame = getframe(gcf); %get frame
+    writeVideo(myVideo, frame);
     set(robPoints,'XData',Data.vecteur_Robot(1,i));
     set(robPoints,'YData',Data.vecteur_Robot(2,i));
     set(particlePoints,'XData',Data.vecteur_particles(1,k+1:k+Data.N_Particles(i)));
     set(particlePoints,'YData',Data.vecteur_particles(2,k+1:k+Data.N_Particles(i)));
     k = k+Data.N_Particles(i);
+    title("particle simulation during a mission")
 end
+
+close(myVideo)
+
+figure(11)
+%% Initialize video
+myVideo2 = VideoWriter('simulationVideoForRobot'); %open video file
+myVideo2.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
+open(myVideo2)
+set(gcf, 'Position', get(0, 'Screensize'));
+
+plot_Environement(Obstacles,11);%affichage de l'environnement
+xlim([10 25])
+ylim([-5 10])
+grid on
+hold on
+robPoints=plot(Data.vecteur_Robot(1,1),Data.vecteur_Robot(2,1),'o','MarkerSize',12,'color','r');
+plot(Data.desired_trajectory(1,:),Data.desired_trajectory(2,:),'*k')
+plot(Data.desired_trajectory(1,:),Data.desired_trajectory(2,:),'k')
+estRobPoints = plot(0,0,'o','MarkerSize',12,'color','b');
+legend("","","","actual robot","","","estimated robot")
+k = 600;
+
+%% Plot in a loop and grab frames
+for i=2:length(Data.vecteur_Robot)
+    pause(0.01)
+    frame = getframe(gcf); %get frame
+    writeVideo(myVideo2, frame);
+    set(robPoints,'XData',Data.vecteur_Robot(1,i));
+    set(robPoints,'YData',Data.vecteur_Robot(2,i));
+    if (Data.vecteurFlagConvergence(i))
+    set(estRobPoints,'XData',Data.vecteur_estimation(1,i));
+    set(estRobPoints,'YData',Data.vecteur_estimation(2,i));
+    end
+    title("estimated robot simulation during a mission")
+end
+close(myVideo2)
